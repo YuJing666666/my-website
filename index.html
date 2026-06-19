@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YuJing - 个人主页</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 加载动画 -->
+  <div class="loader" id="loader">
+    <div class="loader-spinner"></div>
+  </div>
+
+  <!-- 粒子背景 -->
+  <div class="particles" id="particles"></div>
+
+  <!-- 鼠标光晕 -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- 返回顶部 -->
+  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="nav-brand">YJ.</div>
+    <ul class="nav-links">
+      <li><a href="#home">首页</a></li>
+      <li><a href="#about">关于</a></li>
+      <li><a href="#skills">技能</a></li>
+      <li><a href="#projects">项目</a></li>
+      <li><a href="#contact">联系</a></li>
+    </ul>
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- 英雄区域 -->
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <div class="hero-text">
+        <p class="greeting">你好，我是</p>
+        <h1 class="name">YuJing</h1>
+        <h2 class="title">全栈开发者 / 创意设计师</h2>
+        <p class="desc">热爱技术，专注于创造优雅的数字体验。用代码编织创意，用设计传递价值。</p>
+        <div class="hero-buttons">
+          <a href="#projects" class="btn btn-primary">查看作品</a>
+          <a href="#contact" class="btn btn-outline">联系我</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="floating-shapes">
+          <div class="shape shape-1"></div>
+          <div class="shape shape-2"></div>
+          <div class="shape shape-3"></div>
+          <div class="shape shape-4"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="mouse">
+        <div class="wheel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于我 -->
+  <section id="about" class="about">
+    <div class="container">
+      <h2 class="section-title">关于我</h2>
+      <div class="about-content">
+        <div class="about-image">
+          <div class="image-wrapper">
+            <div class="avatar-placeholder">👨‍💻</div>
+          </div>
+        </div>
+        <div class="about-text">
+          <p>我是一名充满热情的开发者，喜欢探索新技术并将其应用到实际项目中。拥有丰富的前端和后端开发经验，擅长构建用户友好的 Web 应用。</p>
+          <p>工作之余，我喜欢研究 AI 技术、参与开源项目，以及分享技术心得。我相信好的产品源于对细节的极致追求。</p>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-number" data-target="3">0</span>+
+              <span class="stat-label">年经验</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" data-target="20">0</span>+
+              <span class="stat-label">完成项目</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" data-target="100">0</span>%
+              <span class="stat-label">客户满意</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 技能 -->
+  <section id="skills" class="skills">
+    <div class="container">
+      <h2 class="section-title">技能特长</h2>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <div class="skill-icon">🎨</div>
+          <h3>前端开发</h3>
+          <p>HTML / CSS / JavaScript / React / Vue</p>
+          <div class="skill-bar"><div class="skill-progress" data-width="90"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">⚙️</div>
+          <h3>后端开发</h3>
+          <p>Node.js / Python / 数据库设计</p>
+          <div class="skill-bar"><div class="skill-progress" data-width="85"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">🤖</div>
+          <h3>AI 应用</h3>
+          <p>大模型集成 / Prompt 工程 / 自动化</p>
+          <div class="skill-bar"><div class="skill-progress" data-width="80"></div></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">📱</div>
+          <h3>UI/UX 设计</h3>
+          <p>Figma / 响应式设计 / 用户体验</p>
+          <div class="skill-bar"><div class="skill-progress" data-width="75"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 项目展示 -->
+  <section id="projects" class="projects">
+    <div class="container">
+      <h2 class="section-title">项目作品</h2>
+      <div class="projects-grid">
+        <div class="project-card">
+          <div class="project-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+            <span>🚀</span>
+          </div>
+          <div class="project-info">
+            <h3>AI 智能画布</h3>
+            <p>基于 AI 的创意绘图工具，支持智能生成和实时协作。</p>
+            <div class="project-tags">
+              <span>Vue</span><span>Canvas</span><span>AI</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="project-image" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+            <span>💡</span>
+          </div>
+          <div class="project-info">
+            <h3>智能家居控制台</h3>
+            <p>全屋智能设备统一管理平台，语音控制与自动化场景。</p>
+            <div class="project-tags">
+              <span>React</span><span>IoT</span><span>Node.js</span>
+            </div>
+          </div>
+        </div>
+        <div class="project-card">
+          <div class="project-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+            <span>📊</span>
+          </div>
+          <div class="project-info">
+            <h3>数据分析仪表盘</h3>
+            <p>实时数据可视化平台，支持多维度数据展示与导出。</p>
+            <div class="project-tags">
+              <span>D3.js</span><span>Python</span><span>API</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 联系方式 -->
+  <section id="contact" class="contact">
+    <div class="container">
+      <h2 class="section-title">联系我</h2>
+      <div class="contact-content">
+        <div class="contact-info">
+          <p>如果你有任何问题或合作想法，欢迎随时联系我！</p>
+          <div class="contact-links">
+            <a href="https://github.com/YuJing666666" class="contact-item" target="_blank">
+              <span class="contact-icon">GitHub</span>
+            </a>
+            <a href="mailto:your-email@example.com" class="contact-item">
+              <span class="contact-icon">Email</span>
+            </a>
+          </div>
+        </div>
+        <form class="contact-form" onsubmit="handleSubmit(event)">
+          <input type="text" placeholder="你的名字" required>
+          <input type="email" placeholder="你的邮箱" required>
+          <textarea placeholder="你的消息..." rows="5" required></textarea>
+          <button type="submit" class="btn btn-primary">发送消息</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="footer">
+    <p>&copy; 2026 YuJing. 用 ❤️ 和代码构建</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -6,149 +6,124 @@
   <title>LM Speed - 免费 API 速度测试</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- 导航栏 -->
   <header class="navbar">
     <div class="nav-container">
-      <a href="/" class="nav-logo">
-        <span class="logo-icon">⚡</span>
-        <span class="logo-text">LM Speed</span>
-      </a>
-      <nav class="nav-menu">
+      <div class="nav-left">
+        <a href="/" class="nav-logo">
+          <img src="https://lmspeed.net/logo.png" alt="Logo" class="logo-img">
+          <span>LM Speed</span>
+        </a>
+      </div>
+      <nav class="nav-center">
         <a href="/" class="nav-link">首页</a>
         <a href="/free" class="nav-link active">免费 API</a>
         <a href="/models" class="nav-link">模型</a>
         <a href="/providers" class="nav-link">提供商</a>
-        <a href="/ranking" class="nav-link">排行榜</a>
+        <button class="nav-link">排行榜 ▾</button>
         <a href="/docs" class="nav-link">文档</a>
-        <a href="/submit" class="nav-link">提交</a>
+        <button class="nav-link">提交 ▾</button>
       </nav>
-      <div class="nav-actions">
-        <button class="icon-btn" title="切换主题">🌙</button>
-        <button class="icon-btn" title="切换语言">🌐</button>
+      <div class="nav-right">
+        <button class="theme-btn" title="切换模式">🌙</button>
+        <button class="theme-btn" title="切换语言">🌐</button>
       </div>
-      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
-        <span></span><span></span><span></span>
+      <button class="mobile-menu-btn" aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </div>
   </header>
 
-  <!-- 移动端菜单 -->
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="/" class="mobile-link">首页</a>
-    <a href="/free" class="mobile-link active">免费 API</a>
-    <a href="/models" class="mobile-link">模型</a>
-    <a href="/providers" class="mobile-link">提供商</a>
-    <a href="/ranking" class="mobile-link">排行榜</a>
-    <a href="/docs" class="mobile-link">文档</a>
-    <a href="/submit" class="mobile-link">提交</a>
+  <!-- 面包屑 -->
+  <div class="breadcrumb-bar">
+    <div class="breadcrumb-container">
+      <ol class="breadcrumb-list">
+        <li><a href="/">首页</a></li>
+        <li class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></li>
+        <li><a href="/providers">服务商</a></li>
+        <li class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></li>
+        <li><a href="/category">分类</a></li>
+        <li class="breadcrumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></li>
+        <li><span class="breadcrumb-current">免费模型</span></li>
+      </ol>
+    </div>
   </div>
 
   <main class="main-content">
-    <!-- 面包屑 -->
-    <div class="breadcrumb">
-      <a href="/">首页</a>
-      <span class="separator">›</span>
-      <a href="/providers">服务商</a>
-      <span class="separator">›</span>
-      <a href="/category">分类</a>
-      <span class="separator">›</span>
-      <span class="current">免费模型</span>
-    </div>
-
     <!-- 页面标题 -->
     <div class="page-header">
-      <div class="header-title-row">
-        <span class="header-icon">⚡</span>
-        <h1>LM Speed</h1>
-      </div>
-      <p class="header-desc">免费 LLM API 速度测试与提供商目录</p>
+      <img src="https://lmspeed.net/logo.png" alt="Logo">
+      <h1>免费模型</h1>
     </div>
 
     <!-- 分类标签 -->
-    <div class="category-tabs">
+    <div class="tabs">
       <button class="tab active">全部</button>
       <button class="tab">公益站</button>
       <button class="tab">中转站</button>
-      <button class="tab">官方站</button>
     </div>
 
-    <!-- 统计与筛选 -->
+    <!-- 筛选栏 -->
     <div class="filter-bar">
       <div class="filter-stats">
-        <div class="stat-chip">
-          <span class="stat-label">分类</span>
-          <span class="stat-value">4</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-label">符合条件</span>
-          <span class="stat-value">4</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-label">总提供商</span>
-          <span class="stat-value">671</span>
-        </div>
-        <div class="stat-chip">
-          <span class="stat-label">活跃</span>
-          <span class="stat-value active-value">388</span>
-        </div>
+        <span class="count">4</span>
+        <span>分类</span>
+        <span class="divider"></span>
+        <span class="count">4</span>
+        <span>符合条件的提供商</span>
+        <span class="divider"></span>
+        <span class="count">671</span>
+        <span>总提供商</span>
+        <span class="divider"></span>
+        <span class="count">388</span>
+        <span>活跃</span>
       </div>
       <div class="filter-controls">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input type="text" placeholder="搜索提供商..." id="searchInput" oninput="filterCards()">
-        </div>
+        <input type="text" class="search-input" placeholder="搜索提供商..." id="searchInput" oninput="filterCards()">
         <select class="filter-select" id="scopeFilter" onchange="filterCards()">
           <option value="all">全部提供商</option>
-          <option value="category">分类列表</option>
           <option value="free">公益站</option>
+          <option value="relay">中转站</option>
         </select>
-        <select class="filter-select" id="sortFilter">
-          <option value="latest">最新测试</option>
-          <option value="name">名称排序</option>
-          <option value="health">健康度排序</option>
+        <select class="filter-select">
+          <option>最新测试</option>
+          <option>名称排序</option>
+          <option>健康度排序</option>
         </select>
       </div>
     </div>
 
     <!-- 卡片列表 -->
     <div class="card-list" id="cardList">
-      <!-- 卡片 1 -->
-      <a href="/provider/6345ywz" class="provider-card">
-        <div class="card-left">
-          <div class="card-logo" style="background: linear-gradient(135deg, #667eea, #764ba2);">63</div>
-        </div>
-        <div class="card-center">
+      <a class="provider-card" href="#">
+        <div class="card-logo" style="background:linear-gradient(135deg,#667eea,#764ba2)">63</div>
+        <div class="card-body">
           <div class="card-title-row">
-            <h3 class="card-title">6345ywz API</h3>
-            <div class="card-tags">
-              <span class="tag tag-relay">中转站</span>
-            </div>
+            <span class="card-title">6345ywz API</span>
+            <div class="card-tags"><span class="tag tag-relay">中转站</span></div>
           </div>
           <p class="card-desc">稳定的 API 中转服务，支持多种模型，低延迟高可用。</p>
           <div class="card-meta">
-            <span class="meta-item">📊 270 次测试</span>
-            <span class="meta-item">🕐 Jun 19</span>
-            <span class="meta-item">🧠 201 模型</span>
-            <span class="meta-item">💰 $0.0014/M</span>
+            <span class="meta-item"><span class="meta-value">270</span> 次测试</span>
+            <span class="meta-item">Jun 19</span>
+            <span class="meta-item"><span class="meta-value">201</span> 模型</span>
+            <span class="meta-item"><span class="meta-value">$0.0014/M</span></span>
           </div>
         </div>
-        <div class="card-right">
-          <div class="health-score healthy">100%</div>
-          <span class="health-label">健康</span>
+        <div class="card-health">
+          <div class="health-value healthy">100%</div>
+          <div class="health-label">健康</div>
         </div>
       </a>
 
-      <!-- 卡片 2 -->
-      <a href="/provider/maoyu" class="provider-card">
-        <div class="card-left">
-          <div class="card-logo" style="background: linear-gradient(135deg, #f093fb, #f5576c);">🐱</div>
-        </div>
-        <div class="card-center">
+      <a class="provider-card" href="#">
+        <div class="card-logo" style="background:linear-gradient(135deg,#f093fb,#f5576c)">🐱</div>
+        <div class="card-body">
           <div class="card-title-row">
-            <h3 class="card-title">猫羽霖API</h3>
+            <span class="card-title">猫羽霖API</span>
             <div class="card-tags">
               <span class="tag tag-relay">中转站</span>
               <span class="tag tag-free">公益站</span>
@@ -156,26 +131,23 @@
           </div>
           <p class="card-desc">提供免费额度的 API 中转，适合开发者测试和学习使用。</p>
           <div class="card-meta">
-            <span class="meta-item">📊 35 次测试</span>
-            <span class="meta-item">🕐 Jun 19</span>
-            <span class="meta-item">🧠 230 模型</span>
-            <span class="meta-item">💰 $0.100/M</span>
+            <span class="meta-item"><span class="meta-value">35</span> 次测试</span>
+            <span class="meta-item">Jun 19</span>
+            <span class="meta-item"><span class="meta-value">230</span> 模型</span>
+            <span class="meta-item"><span class="meta-value">$0.100/M</span></span>
           </div>
         </div>
-        <div class="card-right">
-          <div class="health-score warning">75%</div>
-          <span class="health-label">健康</span>
+        <div class="card-health">
+          <div class="health-value warning">75%</div>
+          <div class="health-label">健康</div>
         </div>
       </a>
 
-      <!-- 卡片 3 -->
-      <a href="/provider/chuye" class="provider-card">
-        <div class="card-left">
-          <div class="card-logo" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">🍂</div>
-        </div>
-        <div class="card-center">
+      <a class="provider-card" href="#">
+        <div class="card-logo" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">🍂</div>
+        <div class="card-body">
           <div class="card-title-row">
-            <h3 class="card-title">初叶🍂Furry API</h3>
+            <span class="card-title">初叶🍂Furry API</span>
             <div class="card-tags">
               <span class="tag tag-relay">中转站</span>
               <span class="tag tag-free">公益站</span>
@@ -183,78 +155,65 @@
           </div>
           <p class="card-desc">社区驱动的公益 API 服务，提供丰富的模型选择。</p>
           <div class="card-meta">
-            <span class="meta-item">📊 10 次测试</span>
-            <span class="meta-item">🕐 Jun 19</span>
-            <span class="meta-item">🧠 268 模型</span>
-            <span class="meta-item">💰 $0.0010/M</span>
+            <span class="meta-item"><span class="meta-value">10</span> 次测试</span>
+            <span class="meta-item">Jun 19</span>
+            <span class="meta-item"><span class="meta-value">268</span> 模型</span>
+            <span class="meta-item"><span class="meta-value">$0.0010/M</span></span>
           </div>
         </div>
-        <div class="card-right">
-          <div class="health-score healthy">98%</div>
-          <span class="health-label">健康</span>
+        <div class="card-health">
+          <div class="health-value healthy">98%</div>
+          <div class="health-label">健康</div>
         </div>
       </a>
 
-      <!-- 卡片 4 -->
-      <a href="/provider/mapleleaf" class="provider-card">
-        <div class="card-left">
-          <div class="card-logo" style="background: linear-gradient(135deg, #ffeaa7, #fdcb6e);">🍁</div>
-        </div>
-        <div class="card-center">
+      <a class="provider-card" href="#">
+        <div class="card-logo" style="background:linear-gradient(135deg,#ffeaa7,#fdcb6e)">🍁</div>
+        <div class="card-body">
           <div class="card-title-row">
-            <h3 class="card-title">MapleLeaf API</h3>
-            <div class="card-tags">
-              <span class="tag tag-relay">中转站</span>
-            </div>
+            <span class="card-title">MapleLeaf API</span>
+            <div class="card-tags"><span class="tag tag-relay">中转站</span></div>
           </div>
           <p class="card-desc">枫叶 API 提供稳定的中转服务，支持主流大模型。</p>
           <div class="card-meta">
-            <span class="meta-item">📊 25 次测试</span>
-            <span class="meta-item">🕐 Jun 19</span>
-            <span class="meta-item">🧠 — 模型</span>
-            <span class="meta-item">💰 —</span>
+            <span class="meta-item"><span class="meta-value">25</span> 次测试</span>
+            <span class="meta-item">Jun 19</span>
+            <span class="meta-item"><span class="meta-value">—</span> 模型</span>
+            <span class="meta-item"><span class="meta-value">—</span></span>
           </div>
         </div>
-        <div class="card-right">
-          <div class="health-score none">暂无</div>
-          <span class="health-label">健康</span>
+        <div class="card-health">
+          <div class="health-value none">暂无</div>
+          <div class="health-label">健康</div>
         </div>
       </a>
 
-      <!-- 卡片 5 -->
-      <a href="/provider/deepseek" class="provider-card">
-        <div class="card-left">
-          <div class="card-logo" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">DS</div>
-        </div>
-        <div class="card-center">
+      <a class="provider-card" href="#">
+        <div class="card-logo" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7)">DS</div>
+        <div class="card-body">
           <div class="card-title-row">
-            <h3 class="card-title">DeepSeek 免费站</h3>
-            <div class="card-tags">
-              <span class="tag tag-free">公益站</span>
-            </div>
+            <span class="card-title">DeepSeek 免费站</span>
+            <div class="card-tags"><span class="tag tag-free">公益站</span></div>
           </div>
           <p class="card-desc">基于 DeepSeek 模型的免费 API 服务，响应速度快。</p>
           <div class="card-meta">
-            <span class="meta-item">📊 156 次测试</span>
-            <span class="meta-item">🕐 Jun 19</span>
-            <span class="meta-item">🧠 45 模型</span>
-            <span class="meta-item">💰 免费</span>
+            <span class="meta-item"><span class="meta-value">156</span> 次测试</span>
+            <span class="meta-item">Jun 19</span>
+            <span class="meta-item"><span class="meta-value">45</span> 模型</span>
+            <span class="meta-item"><span class="meta-value">免费</span></span>
           </div>
         </div>
-        <div class="card-right">
-          <div class="health-score healthy">99%</div>
-          <span class="health-label">健康</span>
+        <div class="card-health">
+          <div class="health-value healthy">99%</div>
+          <div class="health-label">健康</div>
         </div>
       </a>
 
-      <!-- 卡片 6 -->
-      <a href="/provider/gpt-free" class="provider-card">
-        <div class="card-left">
-          <div class="card-logo" style="background: linear-gradient(135deg, #00b894, #00cec9);">GPT</div>
-        </div>
-        <div class="card-center">
+      <a class="provider-card" href="#">
+        <div class="card-logo" style="background:linear-gradient(135deg,#00b894,#00cec9)">GPT</div>
+        <div class="card-body">
           <div class="card-title-row">
-            <h3 class="card-title">GPT 免费中转</h3>
+            <span class="card-title">GPT 免费中转</span>
             <div class="card-tags">
               <span class="tag tag-relay">中转站</span>
               <span class="tag tag-free">公益站</span>
@@ -262,47 +221,44 @@
           </div>
           <p class="card-desc">提供 GPT 系列模型的免费中转服务，每日有限额。</p>
           <div class="card-meta">
-            <span class="meta-item">📊 89 次测试</span>
-            <span class="meta-item">🕐 Jun 18</span>
-            <span class="meta-item">🧠 120 模型</span>
-            <span class="meta-item">💰 免费</span>
+            <span class="meta-item"><span class="meta-value">89</span> 次测试</span>
+            <span class="meta-item">Jun 18</span>
+            <span class="meta-item"><span class="meta-value">120</span> 模型</span>
+            <span class="meta-item"><span class="meta-value">免费</span></span>
           </div>
         </div>
-        <div class="card-right">
-          <div class="health-score healthy">95%</div>
-          <span class="health-label">健康</span>
+        <div class="card-health">
+          <div class="health-value healthy">95%</div>
+          <div class="health-label">健康</div>
         </div>
       </a>
     </div>
 
     <!-- 分页 -->
     <div class="pagination">
-      <span class="page-info">1-6 / 6</span>
-      <button class="page-btn" disabled>‹ 上一页</button>
+      <button class="page-btn" disabled>‹</button>
       <button class="page-btn active">1</button>
-      <button class="page-btn" disabled>下一页 ›</button>
+      <button class="page-btn" disabled>›</button>
     </div>
   </main>
 
   <!-- 页脚 -->
   <footer class="footer">
     <div class="footer-container">
-      <div class="footer-grid">
-        <!-- 品牌列 -->
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <span class="logo-icon">⚡</span>
-            <span class="logo-text">LM Speed</span>
-          </div>
-          <p class="footer-desc">测试和比较各大 LLM API 提供商的速度、延迟和可靠性。</p>
-          <div class="footer-social">
-            <a href="#" class="social-link" title="GitHub">GitHub</a>
-            <a href="#" class="social-link" title="Twitter">X</a>
-            <a href="#" class="social-link" title="Email">Email</a>
-          </div>
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="https://lmspeed.net/logo.png" alt="Logo" class="logo-img">
+          <span>LM Speed</span>
         </div>
+        <p class="footer-desc">专业的 LLM API 速度测试工具</p>
+        <div class="footer-social">
+          <a href="#" class="social-link" title="GitHub">GH</a>
+          <a href="#" class="social-link" title="Twitter">X</a>
+          <a href="#" class="social-link" title="Email">@</a>
+        </div>
+      </div>
 
-        <!-- 产品列 -->
+      <div class="footer-grid">
         <div class="footer-column">
           <h4>产品</h4>
           <ul>
@@ -311,8 +267,6 @@
             <li><a href="#">常见问题</a></li>
           </ul>
         </div>
-
-        <!-- 排行榜列 -->
         <div class="footer-column">
           <h4>排行榜</h4>
           <ul>
@@ -321,10 +275,11 @@
             <li><a href="#">延迟排行</a></li>
             <li><a href="#">健康度排行</a></li>
             <li><a href="#">模型价格</a></li>
+            <li><a href="#">模型速度</a></li>
+            <li><a href="#">推理能力</a></li>
+            <li><a href="#">代码能力</a></li>
           </ul>
         </div>
-
-        <!-- 模型列 -->
         <div class="footer-column">
           <h4>模型</h4>
           <ul>
@@ -333,10 +288,10 @@
             <li><a href="#">Claude</a></li>
             <li><a href="#">Gemini</a></li>
             <li><a href="#">DeepSeek</a></li>
+            <li><a href="#">Llama</a></li>
+            <li><a href="#">Qwen</a></li>
           </ul>
         </div>
-
-        <!-- 免费模型列 -->
         <div class="footer-column">
           <h4>免费模型</h4>
           <ul>
@@ -344,10 +299,11 @@
             <li><a href="#">免费 GPT</a></li>
             <li><a href="#">免费 Claude</a></li>
             <li><a href="#">免费 Gemini</a></li>
+            <li><a href="#">免费 DeepSeek</a></li>
+            <li><a href="#">免费 Llama</a></li>
+            <li><a href="#">免费 Qwen</a></li>
           </ul>
         </div>
-
-        <!-- 资源列 -->
         <div class="footer-column">
           <h4>资源</h4>
           <ul>
@@ -356,9 +312,16 @@
             <li><a href="#">文档</a></li>
           </ul>
         </div>
+        <div class="footer-column">
+          <h4>法律</h4>
+          <ul>
+            <li><a href="#">Cookie 政策</a></li>
+            <li><a href="#">隐私政策</a></li>
+            <li><a href="#">服务条款</a></li>
+          </ul>
+        </div>
       </div>
 
-      <!-- 底部版权 -->
       <div class="footer-bottom">
         <p>© 2026 LM Speed All Rights Reserved.</p>
         <div class="footer-legal">

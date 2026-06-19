@@ -3,208 +3,371 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YuJing - 个人主页</title>
+  <title>LM Speed - 免费 API 速度测试</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- 加载动画 -->
-  <div class="loader" id="loader">
-    <div class="loader-spinner"></div>
+  <!-- 导航栏 -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">LM Speed</span>
+      </a>
+      <nav class="nav-menu">
+        <a href="/" class="nav-link">首页</a>
+        <a href="/free" class="nav-link active">免费 API</a>
+        <a href="/models" class="nav-link">模型</a>
+        <a href="/providers" class="nav-link">提供商</a>
+        <a href="/ranking" class="nav-link">排行榜</a>
+        <a href="/docs" class="nav-link">文档</a>
+        <a href="/submit" class="nav-link">提交</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="icon-btn" title="切换主题">🌙</button>
+        <button class="icon-btn" title="切换语言">🌐</button>
+      </div>
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 移动端菜单 -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="/" class="mobile-link">首页</a>
+    <a href="/free" class="mobile-link active">免费 API</a>
+    <a href="/models" class="mobile-link">模型</a>
+    <a href="/providers" class="mobile-link">提供商</a>
+    <a href="/ranking" class="mobile-link">排行榜</a>
+    <a href="/docs" class="mobile-link">文档</a>
+    <a href="/submit" class="mobile-link">提交</a>
   </div>
 
-  <!-- 粒子背景 -->
-  <div class="particles" id="particles"></div>
-
-  <!-- 鼠标光晕 -->
-  <div class="cursor-glow" id="cursorGlow"></div>
-
-  <!-- 返回顶部 -->
-  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
-  <!-- 导航栏 -->
-  <nav class="navbar">
-    <div class="nav-brand">YJ.</div>
-    <ul class="nav-links">
-      <li><a href="#home">首页</a></li>
-      <li><a href="#about">关于</a></li>
-      <li><a href="#skills">技能</a></li>
-      <li><a href="#projects">项目</a></li>
-      <li><a href="#contact">联系</a></li>
-    </ul>
-    <div class="hamburger" onclick="toggleMenu()">
-      <span></span><span></span><span></span>
+  <main class="main-content">
+    <!-- 面包屑 -->
+    <div class="breadcrumb">
+      <a href="/">首页</a>
+      <span class="separator">›</span>
+      <a href="/providers">服务商</a>
+      <span class="separator">›</span>
+      <a href="/category">分类</a>
+      <span class="separator">›</span>
+      <span class="current">免费模型</span>
     </div>
-  </nav>
 
-  <!-- 英雄区域 -->
-  <section id="home" class="hero">
-    <div class="hero-content">
-      <div class="hero-text">
-        <p class="greeting">你好，我是</p>
-        <h1 class="name">YuJing</h1>
-        <h2 class="title">全栈开发者 / 创意设计师</h2>
-        <p class="desc">热爱技术，专注于创造优雅的数字体验。用代码编织创意，用设计传递价值。</p>
-        <div class="hero-buttons">
-          <a href="#projects" class="btn btn-primary">查看作品</a>
-          <a href="#contact" class="btn btn-outline">联系我</a>
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div class="header-title-row">
+        <span class="header-icon">⚡</span>
+        <h1>LM Speed</h1>
+      </div>
+      <p class="header-desc">免费 LLM API 速度测试与提供商目录</p>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="category-tabs">
+      <button class="tab active">全部</button>
+      <button class="tab">公益站</button>
+      <button class="tab">中转站</button>
+      <button class="tab">官方站</button>
+    </div>
+
+    <!-- 统计与筛选 -->
+    <div class="filter-bar">
+      <div class="filter-stats">
+        <div class="stat-chip">
+          <span class="stat-label">分类</span>
+          <span class="stat-value">4</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">符合条件</span>
+          <span class="stat-value">4</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">总提供商</span>
+          <span class="stat-value">671</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">活跃</span>
+          <span class="stat-value active-value">388</span>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="floating-shapes">
-          <div class="shape shape-1"></div>
-          <div class="shape shape-2"></div>
-          <div class="shape shape-3"></div>
-          <div class="shape shape-4"></div>
+      <div class="filter-controls">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="搜索提供商..." id="searchInput" oninput="filterCards()">
         </div>
+        <select class="filter-select" id="scopeFilter" onchange="filterCards()">
+          <option value="all">全部提供商</option>
+          <option value="category">分类列表</option>
+          <option value="free">公益站</option>
+        </select>
+        <select class="filter-select" id="sortFilter">
+          <option value="latest">最新测试</option>
+          <option value="name">名称排序</option>
+          <option value="health">健康度排序</option>
+        </select>
       </div>
     </div>
-    <div class="scroll-indicator">
-      <div class="mouse">
-        <div class="wheel"></div>
-      </div>
-    </div>
-  </section>
 
-  <!-- 关于我 -->
-  <section id="about" class="about">
-    <div class="container">
-      <h2 class="section-title">关于我</h2>
-      <div class="about-content">
-        <div class="about-image">
-          <div class="image-wrapper">
-            <div class="avatar-placeholder">👨‍💻</div>
-          </div>
+    <!-- 卡片列表 -->
+    <div class="card-list" id="cardList">
+      <!-- 卡片 1 -->
+      <a href="/provider/6345ywz" class="provider-card">
+        <div class="card-left">
+          <div class="card-logo" style="background: linear-gradient(135deg, #667eea, #764ba2);">63</div>
         </div>
-        <div class="about-text">
-          <p>我是一名充满热情的开发者，喜欢探索新技术并将其应用到实际项目中。拥有丰富的前端和后端开发经验，擅长构建用户友好的 Web 应用。</p>
-          <p>工作之余，我喜欢研究 AI 技术、参与开源项目，以及分享技术心得。我相信好的产品源于对细节的极致追求。</p>
-          <div class="stats">
-            <div class="stat-item">
-              <span class="stat-number" data-target="3">0</span>+
-              <span class="stat-label">年经验</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number" data-target="20">0</span>+
-              <span class="stat-label">完成项目</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number" data-target="100">0</span>%
-              <span class="stat-label">客户满意</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 技能 -->
-  <section id="skills" class="skills">
-    <div class="container">
-      <h2 class="section-title">技能特长</h2>
-      <div class="skills-grid">
-        <div class="skill-card">
-          <div class="skill-icon">🎨</div>
-          <h3>前端开发</h3>
-          <p>HTML / CSS / JavaScript / React / Vue</p>
-          <div class="skill-bar"><div class="skill-progress" data-width="90"></div></div>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon">⚙️</div>
-          <h3>后端开发</h3>
-          <p>Node.js / Python / 数据库设计</p>
-          <div class="skill-bar"><div class="skill-progress" data-width="85"></div></div>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon">🤖</div>
-          <h3>AI 应用</h3>
-          <p>大模型集成 / Prompt 工程 / 自动化</p>
-          <div class="skill-bar"><div class="skill-progress" data-width="80"></div></div>
-        </div>
-        <div class="skill-card">
-          <div class="skill-icon">📱</div>
-          <h3>UI/UX 设计</h3>
-          <p>Figma / 响应式设计 / 用户体验</p>
-          <div class="skill-bar"><div class="skill-progress" data-width="75"></div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 项目展示 -->
-  <section id="projects" class="projects">
-    <div class="container">
-      <h2 class="section-title">项目作品</h2>
-      <div class="projects-grid">
-        <div class="project-card">
-          <div class="project-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-            <span>🚀</span>
-          </div>
-          <div class="project-info">
-            <h3>AI 智能画布</h3>
-            <p>基于 AI 的创意绘图工具，支持智能生成和实时协作。</p>
-            <div class="project-tags">
-              <span>Vue</span><span>Canvas</span><span>AI</span>
+        <div class="card-center">
+          <div class="card-title-row">
+            <h3 class="card-title">6345ywz API</h3>
+            <div class="card-tags">
+              <span class="tag tag-relay">中转站</span>
             </div>
           </div>
-        </div>
-        <div class="project-card">
-          <div class="project-image" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
-            <span>💡</span>
-          </div>
-          <div class="project-info">
-            <h3>智能家居控制台</h3>
-            <p>全屋智能设备统一管理平台，语音控制与自动化场景。</p>
-            <div class="project-tags">
-              <span>React</span><span>IoT</span><span>Node.js</span>
-            </div>
+          <p class="card-desc">稳定的 API 中转服务，支持多种模型，低延迟高可用。</p>
+          <div class="card-meta">
+            <span class="meta-item">📊 270 次测试</span>
+            <span class="meta-item">🕐 Jun 19</span>
+            <span class="meta-item">🧠 201 模型</span>
+            <span class="meta-item">💰 $0.0014/M</span>
           </div>
         </div>
-        <div class="project-card">
-          <div class="project-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
-            <span>📊</span>
-          </div>
-          <div class="project-info">
-            <h3>数据分析仪表盘</h3>
-            <p>实时数据可视化平台，支持多维度数据展示与导出。</p>
-            <div class="project-tags">
-              <span>D3.js</span><span>Python</span><span>API</span>
-            </div>
-          </div>
+        <div class="card-right">
+          <div class="health-score healthy">100%</div>
+          <span class="health-label">健康</span>
         </div>
-      </div>
-    </div>
-  </section>
+      </a>
 
-  <!-- 联系方式 -->
-  <section id="contact" class="contact">
-    <div class="container">
-      <h2 class="section-title">联系我</h2>
-      <div class="contact-content">
-        <div class="contact-info">
-          <p>如果你有任何问题或合作想法，欢迎随时联系我！</p>
-          <div class="contact-links">
-            <a href="https://github.com/YuJing666666" class="contact-item" target="_blank">
-              <span class="contact-icon">GitHub</span>
-            </a>
-            <a href="mailto:your-email@example.com" class="contact-item">
-              <span class="contact-icon">Email</span>
-            </a>
+      <!-- 卡片 2 -->
+      <a href="/provider/maoyu" class="provider-card">
+        <div class="card-left">
+          <div class="card-logo" style="background: linear-gradient(135deg, #f093fb, #f5576c);">🐱</div>
+        </div>
+        <div class="card-center">
+          <div class="card-title-row">
+            <h3 class="card-title">猫羽霖API</h3>
+            <div class="card-tags">
+              <span class="tag tag-relay">中转站</span>
+              <span class="tag tag-free">公益站</span>
+            </div>
+          </div>
+          <p class="card-desc">提供免费额度的 API 中转，适合开发者测试和学习使用。</p>
+          <div class="card-meta">
+            <span class="meta-item">📊 35 次测试</span>
+            <span class="meta-item">🕐 Jun 19</span>
+            <span class="meta-item">🧠 230 模型</span>
+            <span class="meta-item">💰 $0.100/M</span>
           </div>
         </div>
-        <form class="contact-form" onsubmit="handleSubmit(event)">
-          <input type="text" placeholder="你的名字" required>
-          <input type="email" placeholder="你的邮箱" required>
-          <textarea placeholder="你的消息..." rows="5" required></textarea>
-          <button type="submit" class="btn btn-primary">发送消息</button>
-        </form>
-      </div>
+        <div class="card-right">
+          <div class="health-score warning">75%</div>
+          <span class="health-label">健康</span>
+        </div>
+      </a>
+
+      <!-- 卡片 3 -->
+      <a href="/provider/chuye" class="provider-card">
+        <div class="card-left">
+          <div class="card-logo" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">🍂</div>
+        </div>
+        <div class="card-center">
+          <div class="card-title-row">
+            <h3 class="card-title">初叶🍂Furry API</h3>
+            <div class="card-tags">
+              <span class="tag tag-relay">中转站</span>
+              <span class="tag tag-free">公益站</span>
+            </div>
+          </div>
+          <p class="card-desc">社区驱动的公益 API 服务，提供丰富的模型选择。</p>
+          <div class="card-meta">
+            <span class="meta-item">📊 10 次测试</span>
+            <span class="meta-item">🕐 Jun 19</span>
+            <span class="meta-item">🧠 268 模型</span>
+            <span class="meta-item">💰 $0.0010/M</span>
+          </div>
+        </div>
+        <div class="card-right">
+          <div class="health-score healthy">98%</div>
+          <span class="health-label">健康</span>
+        </div>
+      </a>
+
+      <!-- 卡片 4 -->
+      <a href="/provider/mapleleaf" class="provider-card">
+        <div class="card-left">
+          <div class="card-logo" style="background: linear-gradient(135deg, #ffeaa7, #fdcb6e);">🍁</div>
+        </div>
+        <div class="card-center">
+          <div class="card-title-row">
+            <h3 class="card-title">MapleLeaf API</h3>
+            <div class="card-tags">
+              <span class="tag tag-relay">中转站</span>
+            </div>
+          </div>
+          <p class="card-desc">枫叶 API 提供稳定的中转服务，支持主流大模型。</p>
+          <div class="card-meta">
+            <span class="meta-item">📊 25 次测试</span>
+            <span class="meta-item">🕐 Jun 19</span>
+            <span class="meta-item">🧠 — 模型</span>
+            <span class="meta-item">💰 —</span>
+          </div>
+        </div>
+        <div class="card-right">
+          <div class="health-score none">暂无</div>
+          <span class="health-label">健康</span>
+        </div>
+      </a>
+
+      <!-- 卡片 5 -->
+      <a href="/provider/deepseek" class="provider-card">
+        <div class="card-left">
+          <div class="card-logo" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">DS</div>
+        </div>
+        <div class="card-center">
+          <div class="card-title-row">
+            <h3 class="card-title">DeepSeek 免费站</h3>
+            <div class="card-tags">
+              <span class="tag tag-free">公益站</span>
+            </div>
+          </div>
+          <p class="card-desc">基于 DeepSeek 模型的免费 API 服务，响应速度快。</p>
+          <div class="card-meta">
+            <span class="meta-item">📊 156 次测试</span>
+            <span class="meta-item">🕐 Jun 19</span>
+            <span class="meta-item">🧠 45 模型</span>
+            <span class="meta-item">💰 免费</span>
+          </div>
+        </div>
+        <div class="card-right">
+          <div class="health-score healthy">99%</div>
+          <span class="health-label">健康</span>
+        </div>
+      </a>
+
+      <!-- 卡片 6 -->
+      <a href="/provider/gpt-free" class="provider-card">
+        <div class="card-left">
+          <div class="card-logo" style="background: linear-gradient(135deg, #00b894, #00cec9);">GPT</div>
+        </div>
+        <div class="card-center">
+          <div class="card-title-row">
+            <h3 class="card-title">GPT 免费中转</h3>
+            <div class="card-tags">
+              <span class="tag tag-relay">中转站</span>
+              <span class="tag tag-free">公益站</span>
+            </div>
+          </div>
+          <p class="card-desc">提供 GPT 系列模型的免费中转服务，每日有限额。</p>
+          <div class="card-meta">
+            <span class="meta-item">📊 89 次测试</span>
+            <span class="meta-item">🕐 Jun 18</span>
+            <span class="meta-item">🧠 120 模型</span>
+            <span class="meta-item">💰 免费</span>
+          </div>
+        </div>
+        <div class="card-right">
+          <div class="health-score healthy">95%</div>
+          <span class="health-label">健康</span>
+        </div>
+      </a>
     </div>
-  </section>
+
+    <!-- 分页 -->
+    <div class="pagination">
+      <span class="page-info">1-6 / 6</span>
+      <button class="page-btn" disabled>‹ 上一页</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn" disabled>下一页 ›</button>
+    </div>
+  </main>
 
   <!-- 页脚 -->
   <footer class="footer">
-    <p>&copy; 2026 YuJing. 用 ❤️ 和代码构建</p>
+    <div class="footer-container">
+      <div class="footer-grid">
+        <!-- 品牌列 -->
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <span class="logo-icon">⚡</span>
+            <span class="logo-text">LM Speed</span>
+          </div>
+          <p class="footer-desc">测试和比较各大 LLM API 提供商的速度、延迟和可靠性。</p>
+          <div class="footer-social">
+            <a href="#" class="social-link" title="GitHub">GitHub</a>
+            <a href="#" class="social-link" title="Twitter">X</a>
+            <a href="#" class="social-link" title="Email">Email</a>
+          </div>
+        </div>
+
+        <!-- 产品列 -->
+        <div class="footer-column">
+          <h4>产品</h4>
+          <ul>
+            <li><a href="#">功能</a></li>
+            <li><a href="#">价格</a></li>
+            <li><a href="#">常见问题</a></li>
+          </ul>
+        </div>
+
+        <!-- 排行榜列 -->
+        <div class="footer-column">
+          <h4>排行榜</h4>
+          <ul>
+            <li><a href="#">总览</a></li>
+            <li><a href="#">速度排行</a></li>
+            <li><a href="#">延迟排行</a></li>
+            <li><a href="#">健康度排行</a></li>
+            <li><a href="#">模型价格</a></li>
+          </ul>
+        </div>
+
+        <!-- 模型列 -->
+        <div class="footer-column">
+          <h4>模型</h4>
+          <ul>
+            <li><a href="#">全部模型</a></li>
+            <li><a href="#">GPT</a></li>
+            <li><a href="#">Claude</a></li>
+            <li><a href="#">Gemini</a></li>
+            <li><a href="#">DeepSeek</a></li>
+          </ul>
+        </div>
+
+        <!-- 免费模型列 -->
+        <div class="footer-column">
+          <h4>免费模型</h4>
+          <ul>
+            <li><a href="#">全部免费模型</a></li>
+            <li><a href="#">免费 GPT</a></li>
+            <li><a href="#">免费 Claude</a></li>
+            <li><a href="#">免费 Gemini</a></li>
+          </ul>
+        </div>
+
+        <!-- 资源列 -->
+        <div class="footer-column">
+          <h4>资源</h4>
+          <ul>
+            <li><a href="#">速度测试</a></li>
+            <li><a href="#">服务商目录</a></li>
+            <li><a href="#">文档</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 底部版权 -->
+      <div class="footer-bottom">
+        <p>© 2026 LM Speed All Rights Reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Cookie 政策</a>
+          <a href="#">隐私政策</a>
+          <a href="#">服务条款</a>
+        </div>
+      </div>
+    </div>
   </footer>
 
   <script src="script.js"></script>

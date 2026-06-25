@@ -1,0 +1,6 @@
+{
+  "name": "Minimalist Web Directory",
+  "description": "一个无感、纯卡片的密密麻麻热门 AI 工具导航，卡片尺寸根据流行度动态响应缩放（Bento 布局），支持自由拖拽重新排列顺序。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

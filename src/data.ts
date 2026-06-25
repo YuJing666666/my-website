@@ -326,6 +326,90 @@ export const INITIAL_WEB_ITEMS: WebItem[] = [
     iconName: 'Blocks',
     popularity: 'micro', // Size 6: Micro 1x1 Condensed
     tokenPrice: '$0.00022/sec'
+  },
+  {
+    id: 'stablediffusion',
+    name: 'Stable Diffusion',
+    url: 'https://stability.ai/',
+    description: '引领开源AI绘画风潮的图像生成模型，支持高度自由的定制和局部重绘。',
+    category: 'ai',
+    tags: ['开源', 'AI绘画', '图像生成'],
+    isFree: 'free',
+    logoColor: 'from-blue-500 to-purple-600',
+    logoText: 'SD',
+    iconName: 'Paintbrush',
+    popularity: 'micro',
+    tokenPrice: '开源/免费'
+  },
+  {
+    id: 'anthropic',
+    name: 'Anthropic Console',
+    url: 'https://console.anthropic.com/',
+    description: '开发者直接调用 Claude 系列大模型 API 的控制台，包含 Prompt Playground。',
+    category: 'ai',
+    tags: ['开发者', 'API', 'Claude'],
+    isFree: 'paid',
+    logoColor: 'from-amber-700 to-stone-800',
+    logoText: 'An',
+    iconName: 'Cpu',
+    popularity: 'micro',
+    tokenPrice: '按量付费'
+  },
+  {
+    id: 'openrouter',
+    name: 'OpenRouter',
+    url: 'https://openrouter.ai/',
+    description: '一键式聚合调用数百种最先进大模型的 API 服务，支持极佳的模型对比与统一计费。',
+    category: 'ai',
+    tags: ['API聚合', '大模型', '开发者'],
+    isFree: 'freemium',
+    logoColor: 'from-sky-600 to-indigo-700',
+    logoText: 'OR',
+    iconName: 'Component',
+    popularity: 'micro',
+    tokenPrice: '聚合计费'
+  },
+  {
+    id: 'phind',
+    name: 'Phind',
+    url: 'https://www.phind.com/',
+    description: '专为开发者设计的智能问答引擎，快速解决代码报错、系统架构与技术选型问题。',
+    category: 'ai',
+    tags: ['AI编程', '代码搜索', '开发者'],
+    isFree: 'free',
+    logoColor: 'from-cyan-500 to-teal-600',
+    logoText: 'Ph',
+    iconName: 'Search',
+    popularity: 'micro',
+    tokenPrice: '免费使用'
+  },
+  {
+    id: 'gamma',
+    name: 'Gamma App',
+    url: 'https://gamma.app/',
+    description: '基于 AI 的现代化内容演示文稿生成器，输入大纲即可自动输出精美网页与 PPT。',
+    category: 'ai',
+    tags: ['AI幻灯片', '文档协作', '演示文稿'],
+    isFree: 'freemium',
+    logoColor: 'from-fuchsia-600 to-pink-600',
+    logoText: 'Ga',
+    iconName: 'Palette',
+    popularity: 'micro',
+    tokenPrice: '400 免费积分'
+  },
+  {
+    id: 'ideogram',
+    name: 'Ideogram',
+    url: 'https://ideogram.ai/',
+    description: '文本排版与艺术字体生成能力行业领先的 AI 图像生成器。',
+    category: 'ai',
+    tags: ['AI绘画', '文本海报', '排版'],
+    isFree: 'freemium',
+    logoColor: 'from-rose-600 to-amber-500',
+    logoText: 'Id',
+    iconName: 'Image',
+    popularity: 'micro',
+    tokenPrice: '每日免费额度'
   }
 ];
 

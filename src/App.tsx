@@ -623,6 +623,13 @@ export default function App() {
                           }}
                           searchQuery={searchQuery}
                           onSearchChange={setSearchQuery}
+                          onSearchClick={() => {
+                            setIsSearchOpen(true);
+                            setTimeout(() => {
+                              searchInputRef.current?.focus();
+                              setIsFocused(true);
+                            }, 80);
+                          }}
                           onAddClick={() => setAddModalOpen(true)}
                           onResetClick={() => {
                             if (confirm('确认重置整个导航布局吗？这会清除您的排序和自定义卡片。')) {

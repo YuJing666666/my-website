@@ -22,6 +22,7 @@ interface CardProps {
   onClick?: (item: WebItem) => void;
   searchQuery?: string;
   onSearchChange?: (val: string) => void;
+  onSearchClick?: () => void;
   onAddClick?: () => void;
   onResetClick?: () => void;
   darkMode?: boolean;
@@ -66,6 +67,7 @@ export default function Card({
   onClick,
   searchQuery,
   onSearchChange,
+  onSearchClick,
   onAddClick,
   onResetClick,
   darkMode,
@@ -239,27 +241,32 @@ export default function Card({
   const isHighLatency = currentPing >= 100;
 
   if (item.id === 'control-center') {
-    const size = Math.min(cardWidth, cardHeight) - 4;
+    const isWide = cardWidth > 1.6 * cardHeight;
+    const padding = 12;
+    const style = isWide
+      ? {
+          height: `${Math.min(cardHeight - padding, (cardWidth - padding) / 4)}px`,
+          aspectRatio: '4/1',
+        }
+      : {
+          width: `${Math.min(cardWidth - padding, cardHeight - padding)}px`,
+          aspectRatio: '1/1',
+        };
+
     return (
-      <div className="relative w-full h-full flex items-center justify-center select-none p-0.5">
+      <div className="relative w-full h-full flex items-center justify-end select-none p-1.5">
         <div 
-          className="grid grid-cols-2 grid-rows-2 gap-2"
-          style={{ width: size > 40 ? size : '100%', height: size > 40 ? size : '100%' }}
+          className={isWide ? "grid grid-cols-4 gap-1.5" : "grid grid-cols-2 grid-rows-2 gap-1.5"}
+          style={style}
         >
           {/* Cell 1: Search */}
-          <div className="flex flex-col items-center justify-center rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm p-1 min-w-0 min-h-0 relative group/search hover:border-indigo-300 dark:hover:border-indigo-900 transition-colors">
-            <Search className="w-5 h-5 text-indigo-500" />
-            <input
-              type="text"
-              value={searchQuery || ''}
-              onChange={(e) => onSearchChange?.(e.target.value)}
-              placeholder="搜索"
-              className={`absolute inset-0 w-full h-full bg-white dark:bg-zinc-900 border-none text-center text-xs focus:outline-none focus:ring-0 p-1 text-zinc-800 dark:text-zinc-200 font-bold transition-opacity rounded-md ${
-                searchQuery ? 'opacity-100' : 'opacity-0 focus:opacity-100'
-              }`}
-              title="搜索..."
-            />
-          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onSearchClick?.(); }}
+            className="flex items-center justify-center rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-900 hover:scale-[1.03] active:scale-95 transition-all cursor-pointer min-w-0 min-h-0 text-indigo-500"
+            title="搜索工具"
+          >
+            <Search className="w-5 h-5" />
+          </button>
 
           {/* Cell 2: Add */}
           <button

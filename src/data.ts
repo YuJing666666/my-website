@@ -1,4 +1,4 @@
-import { WebItem, Category } from './types';
+import { WebItem, Category, AIModel, StockInfo, StockPoint, NewsItem } from './types';
 
 export const CATEGORIES: Category[] = [
   { id: 'all', name: '全部', icon: 'LayoutGrid' }
@@ -328,3 +328,243 @@ export const INITIAL_WEB_ITEMS: WebItem[] = [
     tokenPrice: '$0.00022/sec'
   }
 ];
+
+export function getModelsForItem(item: WebItem): AIModel[] {
+  if (item.models && item.models.length > 0) return item.models;
+
+  const name = item.name;
+  if (name.toLowerCase().includes('deepseek')) {
+    return [
+      { name: 'DeepSeek-R1', releaseDate: '2025-01', useCase: '推理/代码' },
+      { name: 'DeepSeek-V3', releaseDate: '2024-12', useCase: '聊天/多模态' },
+      { name: 'DeepSeek-Coder', releaseDate: '2024-06', useCase: '代码' }
+    ];
+  }
+  if (name.toLowerCase().includes('gpt') || name.toLowerCase().includes('openai')) {
+    return [
+      { name: 'o3-mini', releaseDate: '2025-01', useCase: '推理/代码' },
+      { name: 'o1-pro', releaseDate: '2024-12', useCase: '推理/代码' },
+      { name: 'GPT-4o', releaseDate: '2024-05', useCase: '聊天/多模态' },
+      { name: 'DALL-E 3', releaseDate: '2023-10', useCase: '绘画' }
+    ];
+  }
+  if (name.toLowerCase().includes('claude') || name.toLowerCase().includes('anthropic')) {
+    return [
+      { name: 'Claude 3.5 Sonnet', releaseDate: '2024-06', useCase: '代码/写作' },
+      { name: 'Claude 3.5 Haiku', releaseDate: '2024-11', useCase: '聊天/代码' },
+      { name: 'Claude 3 Opus', releaseDate: '2024-03', useCase: '长文本/逻辑' }
+    ];
+  }
+  if (name.toLowerCase().includes('gemini') || name.toLowerCase().includes('google')) {
+    return [
+      { name: 'Gemini 2.0 Flash', releaseDate: '2024-12', useCase: '聊天/多模态' },
+      { name: 'Gemini 1.5 Pro', releaseDate: '2024-05', useCase: '长文本/分析' },
+      { name: 'Imagen 3', releaseDate: '2024-08', useCase: '绘画' }
+    ];
+  }
+  if (name.toLowerCase().includes('doubao') || name.toLowerCase().includes('豆包')) {
+    return [
+      { name: 'Doubao-pro', releaseDate: '2024-05', useCase: '聊天/办公' },
+      { name: 'Doubao-lite', releaseDate: '2024-05', useCase: '轻量/对话' },
+      { name: 'Skylark-v2', releaseDate: '2023-11', useCase: '聊天/语言' }
+    ];
+  }
+  if (name.toLowerCase().includes('kimi') || name.toLowerCase().includes('moonshot')) {
+    return [
+      { name: 'Kimi-Chat-200k', releaseDate: '2023-10', useCase: '长文本/对话' },
+      { name: 'Kimi-Exploration', releaseDate: '2024-10', useCase: '搜索/联网' }
+    ];
+  }
+  if (name.toLowerCase().includes('midjourney')) {
+    return [
+      { name: 'Midjourney v6.1', releaseDate: '2024-07', useCase: '绘画' },
+      { name: 'Midjourney v6', releaseDate: '2023-12', useCase: '绘画' }
+    ];
+  }
+  if (name.toLowerCase().includes('suno')) {
+    return [
+      { name: 'Suno v4', releaseDate: '2024-11', useCase: '声音' },
+      { name: 'Suno v3', releaseDate: '2024-03', useCase: '声音' }
+    ];
+  }
+  if (name.toLowerCase().includes('runway')) {
+    return [
+      { name: 'Gen-3 Alpha', releaseDate: '2024-06', useCase: '视频' },
+      { name: 'Gen-2', releaseDate: '2023-06', useCase: '视频' }
+    ];
+  }
+  if (name.toLowerCase().includes('v0')) {
+    return [
+      { name: 'v0-next', releaseDate: '2024-09', useCase: '代码' },
+      { name: 'v0-dolly', releaseDate: '2023-10', useCase: '代码' }
+    ];
+  }
+  if (name.toLowerCase().includes('flux') || name.toLowerCase().includes('black-forest')) {
+    return [
+      { name: 'FLUX.1 [pro]', releaseDate: '2024-08', useCase: '绘画' },
+      { name: 'FLUX.1 [dev]', releaseDate: '2024-08', useCase: '绘画' },
+      { name: 'FLUX.1 [schnell]', releaseDate: '2024-08', useCase: '绘画' }
+    ];
+  }
+
+  const tags = item.tags || [];
+  let detectedUseCase = '聊天';
+  if (tags.some(t => t.includes('代码') || t.includes('编程') || t.includes('写代码'))) {
+    detectedUseCase = '代码';
+  } else if (tags.some(t => t.includes('画') || t.includes('生图') || t.includes('图像') || t.includes('图片') || t.includes('设计') || t.includes('绘画'))) {
+    detectedUseCase = '绘画';
+  } else if (tags.some(t => t.includes('视频') || t.includes('剪辑') || t.includes('动画'))) {
+    detectedUseCase = '视频';
+  } else if (tags.some(t => t.includes('声音') || t.includes('音频') || t.includes('音乐') || t.includes('配音'))) {
+    detectedUseCase = '声音';
+  }
+
+  return [
+    { name: `${item.name}-Pro`, releaseDate: '2024-10', useCase: detectedUseCase },
+    { name: `${item.name}-Lite`, releaseDate: '2024-04', useCase: detectedUseCase }
+  ];
+}
+
+export interface StockAndNews {
+  stock: StockInfo;
+  news: NewsItem[];
+}
+
+export function getStockAndNewsForItem(item: WebItem): StockAndNews {
+  if (item.stock && item.news && item.news.length > 0) {
+    return { stock: item.stock, news: item.news };
+  }
+
+  const name = item.name.toLowerCase();
+  
+  let ticker = 'GOOGL';
+  let companyName = 'Alphabet Inc. (Google)';
+  let basePrice = 175.24;
+  let change = 1.34;
+  
+  if (name.includes('deepseek')) {
+    ticker = '603156.SH';
+    companyName = '幻方量化 (High-Flyer AI Partner)';
+    basePrice = 52.80;
+    change = 4.25;
+  } else if (name.includes('gpt') || name.includes('openai') || name.includes('microsoft')) {
+    ticker = 'MSFT';
+    companyName = 'Microsoft Corp. (OpenAI Partner)';
+    basePrice = 421.90;
+    change = 1.82;
+  } else if (name.includes('claude') || name.includes('anthropic') || name.includes('amazon')) {
+    ticker = 'AMZN';
+    companyName = 'Amazon.com, Inc. (Anthropic Partner)';
+    basePrice = 189.30;
+    change = -0.45;
+  } else if (name.includes('doubao') || name.includes('字节') || name.includes('bytedance')) {
+    ticker = 'BDNCE';
+    companyName = 'ByteDance (Doubao Parent)';
+    basePrice = 120.50;
+    change = 3.12;
+  } else if (name.includes('kimi') || name.includes('moonshot') || name.includes('月之暗面')) {
+    ticker = '600602.SH';
+    companyName = '月之暗面 Moonshot AI';
+    basePrice = 34.60;
+    change = 2.45;
+  } else if (name.includes('midjourney')) {
+    ticker = 'MJY';
+    companyName = 'Midjourney Inc.';
+    basePrice = 85.00;
+    change = 0.50;
+  } else if (name.includes('v0') || name.includes('vercel')) {
+    ticker = 'VRCL';
+    companyName = 'Vercel Inc.';
+    basePrice = 72.40;
+    change = 1.15;
+  } else if (name.includes('hugging')) {
+    ticker = 'HUG';
+    companyName = 'Hugging Face Inc.';
+    basePrice = 96.20;
+    change = 0.85;
+  } else if (name.includes('runway')) {
+    ticker = 'RWY';
+    companyName = 'Runway AI, Inc.';
+    basePrice = 45.10;
+    change = -1.20;
+  } else if (name.includes('suno')) {
+    ticker = 'SUNO';
+    companyName = 'Suno Music AI';
+    basePrice = 32.80;
+    change = 5.67;
+  } else {
+    ticker = 'NVDA';
+    companyName = 'NVIDIA Corp. (AI Hardware Partner)';
+    basePrice = 124.50;
+    change = 2.75;
+  }
+
+  const history: StockPoint[] = [];
+  const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  let currentVal = basePrice - (change * 4);
+  for (let i = 0; i < 7; i++) {
+    const dailyFluctuation = (Math.sin(i * 1.5) * (basePrice * 0.02)) + (Math.random() * (basePrice * 0.01));
+    currentVal = parseFloat((basePrice * (0.95 + (i * 0.008)) + dailyFluctuation).toFixed(2));
+    history.push({ date: days[i], value: currentVal });
+  }
+  history[6].value = basePrice;
+
+  let news: NewsItem[] = [];
+  if (name.includes('deepseek')) {
+    news = [
+      { title: 'DeepSeek R1 发布：开源推理大模型性能比肩 OpenAI o1', source: '机器之心', time: '12小时前' },
+      { title: '全球开发者涌入：DeepSeek 官方 API 流量激增 10 倍', source: 'CSDN', time: '1天前' },
+      { title: '低成本算力奇迹：幻方量化如何用 2000 万美元训练出顶尖大模型', source: '36氪', time: '3天前' }
+    ];
+  } else if (name.includes('gpt') || name.includes('openai')) {
+    news = [
+      { title: 'OpenAI 计划推出下一代 o3 推理大模型，专注于高级数理逻辑', source: '科技日报', time: '5小时前' },
+      { title: 'ChatGPT Plus 订阅用户再创新高，新语音模式全面上线', source: '腾讯科技', time: '1天前' },
+      { title: '微软宣布增加对 OpenAI 的百亿追加投资，全力升级 Azure 算力', source: '华尔街日报', time: '2天前' }
+    ];
+  } else if (name.includes('claude') || name.includes('anthropic')) {
+    news = [
+      { title: 'Anthropic 推出 Claude 3.5 Sonnet 新版本：编写复杂代码能力倍增', source: '量子位', time: '3小时前' },
+      { title: 'Claude 网页端上线 "Artifacts" 功能：直接在对话框预览网页并生成界面', source: '新浪科技', time: '18小时前' },
+      { title: '亚马逊追加 40 亿美元投资，成为 Anthropic 核心云服务商', source: '钛媒体', time: '3天前' }
+    ];
+  } else if (name.includes('gemini') || name.includes('google')) {
+    news = [
+      { title: '谷歌发布 Gemini 2.0 Flash：实时音频、视频与高并发推理全面开放 API', source: '爱范儿', time: '8小时前' },
+      { title: '谷歌 Chrome 浏览器深度集成 Gemini Nano 离线模型，支持网页本地总结', source: 'IT之家', time: '1天前' },
+      { title: 'Alphabet 发布季度财报，谷歌云 AI 服务营收增长超 35%', source: '雪球', time: '2天前' }
+    ];
+  } else if (name.includes('doubao') || name.includes('字节')) {
+    news = [
+      { title: '字节跳动豆包大模型日均代币消耗量突破 1.2 万亿，国内增速第一', source: '北京商报', time: '10小时前' },
+      { title: '豆包 APP 推出全新数字分身功能，人人皆可一键创建专属 AI 伴侣', source: '创业邦', time: '1天前' },
+      { title: '火山引擎发布全新大模型版低成本存储方案，助推 AI 规模化落地', source: '中国经济网', time: '3天前' }
+    ];
+  } else if (name.includes('kimi') || name.includes('moonshot')) {
+    news = [
+      { title: '月之暗面 Kimi 推出极速“探索版”：支持自主多步联网搜索与智能整理', source: '第一财经', time: '6小时前' },
+      { title: '长文本专家 Kimi 升级支持 200 万字超长上下文无损分析', source: '网易科技', time: '1天前' },
+      { title: '月之暗面完成新一轮数亿美元融资，估值突破 30 亿美元大关', source: '投中网', time: '4天前' }
+    ];
+  } else if (name.includes('midjourney')) {
+    news = [
+      { title: 'Midjourney 开启网页端免注册体验，并发布全新人脸细节恢复器', source: '艺术与科技', time: '16小时前' },
+      { title: 'MJ V6.1 大版本迭代发布：图像渲染速度提升 25%，细节更细腻', source: '设计前沿', time: '2天前' }
+    ];
+  } else if (name.includes('suno')) {
+    news = [
+      { title: 'Suno V4 音乐生成大模型内测上线：支持 44kHz 超高保真立体声', source: '音频界', time: '20小时前' },
+      { title: 'AI 音乐合法性争鸣：Suno 联合创始人发声支持创作者版权分成', source: '新浪科技', time: '3天前' }
+    ];
+  } else {
+    news = [
+      { title: `${item.name} 升级全新大语言模型，企业级安全性全面通过认证`, source: '行业先锋', time: '12小时前' },
+      { title: `全球 AI 算力高地：${item.name} 携手英伟达启动千卡计算集群`, source: '科技焦点', time: '2天前' }
+    ];
+  }
+
+  return {
+    stock: { ticker, companyName, price: basePrice, change, history },
+    news
+  };
+}

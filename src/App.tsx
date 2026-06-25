@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Search, Sun, Moon, Plus, RefreshCw, AlertCircle, History, X
+  Search, Sun, Moon, Plus, RefreshCw, AlertCircle, History, X,
+  TrendingUp, TrendingDown, Newspaper, Calendar, DollarSign, Activity, Cpu
 } from 'lucide-react';
 import { WebItem } from './types';
-import { INITIAL_WEB_ITEMS } from './data';
+import { INITIAL_WEB_ITEMS, getStockAndNewsForItem, getModelsForItem } from './data';
 import Card from './components/Card';
 import AddCardModal from './components/AddCardModal';
 
@@ -36,7 +37,14 @@ function computeTreemap(
   const weightedItems = items.map(item => ({
     item,
     weight: getWeight(item.popularity)
-  })).sort((a, b) => b.weight - a.weight);
+  })).sort((a, b) => {
+    if (b.weight !== a.weight) {
+      return b.weight - a.weight;
+    }
+    if (a.item.id === 'control-center') return 1;
+    if (b.item.id === 'control-center') return -1;
+    return 0;
+  });
 
   function layout(
     nodes: { item: WebItem; weight: number }[],
@@ -190,7 +198,18 @@ export default function App() {
   });
 
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [selectedTool, setSelectedTool] = useState<WebItem | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedTool(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   
   // Resize Observer state to dynamically compute the physical dimensions of the Treemap container
   const containerRef = useRef<HTMLDivElement>(null);
@@ -396,36 +415,12 @@ export default function App() {
   });
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-[#fafafa] dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 transition-colors duration-300 px-3 sm:px-4 lg:px-6 py-4 flex flex-col relative">
+    <div className="h-screen max-h-screen overflow-hidden bg-[#fafafa] dark:bg-zinc-950 text-zinc-800 dark:text-zinc-100 transition-colors duration-300 px-2.5 sm:px-4 py-4 flex flex-col relative">
       
       {/* Background aesthetic grid lines */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_0.5px,transparent_0.5px),linear-gradient(to_bottom,#e5e7eb_0.5px,transparent_0.5px)] dark:bg-[linear-gradient(to_right,#1f2937_0.5px,transparent_0.5px),linear-gradient(to_bottom,#1f2937_0.5px,transparent_0.5px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-[0.25] dark:opacity-[0.16]" />
       </div>
-
-      {/* Floating trigger button when search drawer is closed */}
-      <AnimatePresence>
-        {!isSearchOpen && (
-          <motion.button
-            initial={{ scale: 0.8, opacity: 0, y: 10 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 10 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            onClick={() => {
-              setIsSearchOpen(true);
-              setTimeout(() => {
-                searchInputRef.current?.focus();
-                setIsFocused(true);
-              }, 120);
-            }}
-            className="fixed bottom-6 right-6 z-30 flex items-center justify-center w-11 h-11 rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-zinc-100 shadow-[0_12px_24px_rgba(0,0,0,0.1)] dark:shadow-[0_12px_24px_rgba(0,0,0,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
-            id="search-trigger-fab"
-            title="搜索设置"
-          >
-            <Search className="w-5 h-5" />
-          </motion.button>
-        )}
-      </AnimatePresence>
 
       {/* Search overlay & top drawer */}
       <AnimatePresence>
@@ -575,39 +570,74 @@ export default function App() {
           {filteredItems.length > 0 ? (
             <div className="absolute inset-0 w-full h-full" id="treemap-bento-grid">
               <AnimatePresence mode="popLayout">
-                {computeTreemap(filteredItems, dimensions.width, dimensions.height).map(({ item, rect }) => {
-                  const cardWidth = (rect.w * dimensions.width) / 100;
-                  const cardHeight = (rect.h * dimensions.height) / 100;
-                  return (
-                    <motion.div
-                      layout
-                      key={item.id}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.96 }}
-                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                      style={{
-                        position: 'absolute',
-                        left: `${rect.x}%`,
-                        top: `${rect.y}%`,
-                        width: `${rect.w}%`,
-                        height: `${rect.h}%`,
-                        padding: '3px',
-                      }}
-                    >
-                      <Card 
-                        item={item} 
-                        cardWidth={cardWidth - 6} // minus padding
-                        cardHeight={cardHeight - 6} // minus padding
-                        onDelete={handleDeleteCard}
-                        onDragStart={(id) => setDraggedId(id)}
-                        onDragOver={(id) => handleReorder(draggedId, id)}
-                        onDragEnd={handleDragEnd}
-                        isDragging={draggedId === item.id}
-                      />
-                    </motion.div>
-                  );
-                })}
+                {(() => {
+                  const controlCenterItem: WebItem = {
+                    id: 'control-center',
+                    name: '控制中心',
+                    url: '#',
+                    description: '四合一控制面板',
+                    category: 'system',
+                    tags: [],
+                    isFree: 'free',
+                    popularity: 'micro',
+                    logoColor: 'from-zinc-100 to-zinc-200',
+                    logoText: 'Ctrl',
+                    iconName: 'Settings'
+                  };
+                  const treemapItems = [...filteredItems];
+                  if (!treemapItems.some(i => i.id === 'control-center')) {
+                    treemapItems.push(controlCenterItem);
+                  }
+                  return computeTreemap(treemapItems, dimensions.width, dimensions.height).map(({ item, rect }) => {
+                    const cardWidth = (rect.w * dimensions.width) / 100;
+                    const cardHeight = (rect.h * dimensions.height) / 100;
+                    return (
+                      <motion.div
+                        layout
+                        key={item.id}
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                        style={{
+                          position: 'absolute',
+                          left: `${rect.x}%`,
+                          top: `${rect.y}%`,
+                          width: `${rect.w}%`,
+                          height: `${rect.h}%`,
+                          padding: '3px',
+                        }}
+                      >
+                        <Card 
+                          item={item} 
+                          cardWidth={cardWidth - 6} // minus padding
+                          cardHeight={cardHeight - 6} // minus padding
+                          onDelete={handleDeleteCard}
+                          onDragStart={(id) => setDraggedId(id)}
+                          onDragOver={(id) => handleReorder(draggedId, id)}
+                          onDragEnd={handleDragEnd}
+                          isDragging={draggedId === item.id}
+                          onClick={(clickedItem) => {
+                            if (clickedItem.id === 'control-center') return;
+                            setSelectedTool(clickedItem);
+                          }}
+                          searchQuery={searchQuery}
+                          onSearchChange={setSearchQuery}
+                          onAddClick={() => setAddModalOpen(true)}
+                          onResetClick={() => {
+                            if (confirm('确认重置整个导航布局吗？这会清除您的排序和自定义卡片。')) {
+                              localStorage.removeItem('custom_web_items');
+                              localStorage.removeItem('all_web_items_ordered');
+                              window.location.reload();
+                            }
+                          }}
+                          darkMode={darkMode}
+                          onThemeToggle={() => setDarkMode(!darkMode)}
+                        />
+                      </motion.div>
+                    );
+                  });
+                })()}
               </AnimatePresence>
             </div>
           ) : (
@@ -639,6 +669,326 @@ export default function App() {
         onAdd={handleAddCard}
         categories={[]}
       />
+
+      {/* Stock Price and News Floating Modal Panel */}
+      <AnimatePresence>
+        {selectedTool && (() => {
+          const data = getStockAndNewsForItem(selectedTool);
+          const { stock, news } = data;
+          const isUp = stock.change >= 0;
+          
+          // Compute SVG coordinates for the 7 points
+          const minVal = Math.min(...stock.history.map(p => p.value));
+          const maxVal = Math.max(...stock.history.map(p => p.value));
+          const valSpread = maxVal - minVal || 1;
+          
+          // Add margin to spread
+          const padMin = minVal - valSpread * 0.15;
+          const padMax = maxVal + valSpread * 0.15;
+          const padSpread = padMax - padMin || 1;
+
+          const width = 500;
+          const height = 220;
+          const paddingLeft = 45;
+          const paddingRight = 15;
+          const paddingTop = 25;
+          const paddingBottom = 30;
+          
+          const chartW = width - paddingLeft - paddingRight;
+          const chartH = height - paddingTop - paddingBottom;
+          
+          const points = stock.history.map((p, idx) => {
+            const x = paddingLeft + (idx / (stock.history.length - 1)) * chartW;
+            const y = paddingTop + chartH - ((p.value - padMin) / padSpread) * chartH;
+            return { x, y, ...p };
+          });
+          
+          let lineD = '';
+          let areaD = '';
+          if (points.length > 0) {
+            lineD = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ');
+            areaD = lineD + ` L ${points[points.length - 1].x},${paddingTop + chartH} L ${points[0].x},${paddingTop + chartH} Z`;
+          }
+
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/40 dark:bg-black/60 backdrop-blur-md"
+              onClick={() => setSelectedTool(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.95, y: 15, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.95, y: 15, opacity: 0 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+                className="relative w-full max-w-4xl bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl dark:shadow-black/80 overflow-hidden flex flex-col max-h-[85vh] md:max-h-[90vh]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Top Bar / Header */}
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0 bg-zinc-50/50 dark:bg-zinc-900/50">
+                  <div className="flex items-center gap-3">
+                    <div className="text-zinc-900 dark:text-zinc-100 font-extrabold text-base flex items-center gap-2">
+                      <span>{selectedTool.name}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-mono">
+                        {stock.ticker}
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-400 dark:text-zinc-500 font-mono hidden sm:inline">
+                      {stock.companyName}
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => setSelectedTool(null)}
+                    className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-850 transition-colors"
+                    title="关闭窗口"
+                  >
+                    <X className="w-4.5 h-4.5" />
+                  </button>
+                </div>
+                
+                {/* Scrollable Container with dense layout & no scrollbar */}
+                <div className="flex-grow overflow-hidden p-4 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                    
+                    {/* Left Side: Stock Trend Dashboard - NO BORDER */}
+                    <div className="flex flex-col rounded-xl p-4 bg-zinc-50/50 dark:bg-zinc-900/30 justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5">
+                            <Activity className="w-4 h-4 text-zinc-400" />
+                            <span>最新股票走势</span>
+                          </h3>
+                          <span className="text-[10px] text-zinc-400 font-mono">
+                            NASDAQ 实时行情
+                          </span>
+                        </div>
+                        
+                        {/* Current Price indicators */}
+                        <div className="flex items-baseline gap-2 mb-2">
+                          <div className="text-xl font-extrabold text-zinc-900 dark:text-zinc-100 font-mono">
+                            ${stock.price.toFixed(2)}
+                          </div>
+                          <div className={`flex items-center text-xs font-bold font-mono ${isUp ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
+                            {isUp ? <TrendingUp className="w-3.5 h-3.5 mr-0.5" /> : <TrendingDown className="w-3.5 h-3.5 mr-0.5" />}
+                            <span>{isUp ? '+' : ''}{stock.change.toFixed(2)} ({isUp ? '+' : ''}{((stock.change / (stock.price - stock.change)) * 100).toFixed(2)}%)</span>
+                          </div>
+                        </div>
+                      </div>
+ 
+                      {/* SVG Area Chart - NO BORDER */}
+                      <div className="relative w-full overflow-hidden mt-1 bg-zinc-100/20 dark:bg-zinc-950/40 rounded-lg p-2">
+                        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible select-none">
+                          <defs>
+                            <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor={isUp ? '#10b981' : '#f43f5e'} stopOpacity="0.25" />
+                              <stop offset="100%" stopColor={isUp ? '#10b981' : '#f43f5e'} stopOpacity="0.00" />
+                            </linearGradient>
+                          </defs>
+                          
+                          {/* Horizontal coordinate grid lines */}
+                          {[0, 0.25, 0.5, 0.75, 1].map((r, i) => {
+                            const yVal = padMin + r * padSpread;
+                            const yPos = paddingTop + chartH - r * chartH;
+                            return (
+                              <g key={i} className="opacity-40">
+                                <line 
+                                  x1={paddingLeft} 
+                                  y1={yPos} 
+                                  x2={width - paddingRight} 
+                                  y2={yPos} 
+                                  stroke="currentColor" 
+                                  strokeWidth="0.5" 
+                                  strokeDasharray="3 3"
+                                  className="text-zinc-300 dark:text-zinc-750" 
+                                />
+                                <text 
+                                  x={paddingLeft - 8} 
+                                  y={yPos + 3} 
+                                  textAnchor="end" 
+                                  className="fill-zinc-400 font-mono text-[9px] font-bold"
+                                >
+                                  ${yVal.toFixed(0)}
+                                </text>
+                              </g>
+                            );
+                          })}
+ 
+                          {/* Gradient Area Fill */}
+                          {areaD && (
+                            <path 
+                              d={areaD} 
+                              fill="url(#chartFill)" 
+                            />
+                          )}
+ 
+                          {/* Stroke line */}
+                          {lineD && (
+                            <path 
+                              d={lineD} 
+                              fill="none" 
+                              stroke={isUp ? '#10b981' : '#f43f5e'} 
+                              strokeWidth="2.5" 
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          )}
+ 
+                          {/* Clickable Columns & Highlight Circles */}
+                          {points.map((p, idx) => {
+                            return (
+                              <g key={idx} className="group/dot cursor-pointer">
+                                {/* Hitbox column for hover feedback */}
+                                <rect
+                                  x={p.x - chartW / 12}
+                                  y={paddingTop}
+                                  width={chartW / 6}
+                                  height={chartH}
+                                  fill="transparent"
+                                  className="hover:fill-zinc-500/5 dark:hover:fill-zinc-350/5 transition-colors"
+                                />
+                                
+                                {/* Glowing Dot on Line */}
+                                <circle 
+                                  cx={p.x} 
+                                  cy={p.y} 
+                                  r="5" 
+                                  className={`transition-transform duration-200 fill-white border ${
+                                    isUp 
+                                      ? 'stroke-emerald-500 dark:stroke-emerald-400 group-hover/dot:scale-125' 
+                                      : 'stroke-rose-500 dark:stroke-rose-400 group-hover/dot:scale-125'
+                                  }`}
+                                  strokeWidth="2.5" 
+                                />
+ 
+                                {/* Hover Tooltip Overlay */}
+                                <g className="opacity-0 group-hover/dot:opacity-100 transition-opacity duration-150 pointer-events-none">
+                                  <rect 
+                                    x={Math.max(10, p.x - 45)} 
+                                    y={p.y - 32} 
+                                    width="90" 
+                                    height="24" 
+                                    rx="4" 
+                                    className="fill-zinc-950 dark:fill-white text-white dark:text-zinc-950"
+                                  />
+                                  <text 
+                                    x={Math.max(10, p.x - 45) + 45} 
+                                    y={p.y - 17} 
+                                    textAnchor="middle" 
+                                    className="fill-white dark:fill-zinc-950 font-mono text-[9px] font-extrabold"
+                                  >
+                                    {p.date}: ${p.value.toFixed(2)}
+                                  </text>
+                                </g>
+                              </g>
+                            );
+                          })}
+ 
+                          {/* Date timeline labels at bottom */}
+                          {points.map((p, idx) => (
+                            <text 
+                              key={idx} 
+                              x={p.x} 
+                              y={height - 8} 
+                              textAnchor="middle" 
+                              className="fill-zinc-400 font-bold text-[9px] font-sans"
+                            >
+                              {p.date}
+                            </text>
+                          ))}
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {/* Right Side: divided into News (1/3) and Model Series (2/3) */}
+                    <div className="flex flex-col gap-3.5">
+                      
+                      {/* Right-Top 1/3: News - NO BORDER / NO REDIRECTS */}
+                      <div className="flex-[1] flex flex-col rounded-xl p-3.5 bg-zinc-50/50 dark:bg-zinc-900/30 justify-between">
+                        <div>
+                          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 mb-2.5">
+                            <Newspaper className="w-4 h-4 text-zinc-400" />
+                            <span>行业相关资讯</span>
+                          </h3>
+                          
+                          <div className="space-y-2">
+                            {news.slice(0, 2).map((item, idx) => (
+                              <div 
+                                key={idx}
+                                className="group/news p-2.5 rounded-lg bg-white/60 dark:bg-zinc-950/20 text-left transition-all duration-200"
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <h4 className="text-xs font-bold text-zinc-800 dark:text-zinc-100 leading-snug line-clamp-1 flex-grow">
+                                    {item.title}
+                                  </h4>
+                                </div>
+                                <div className="flex items-center gap-2 mt-1 text-[9px] font-mono text-zinc-400 dark:text-zinc-500">
+                                  <span className="font-semibold text-zinc-500 dark:text-zinc-400">{item.source}</span>
+                                  <span>•</span>
+                                  <span>{item.time}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+ 
+                      {/* Right-Bottom 2/3: Model Series - NO BORDER / NO SCROLLBAR */}
+                      <div className="flex-[2] flex flex-col rounded-xl p-3.5 bg-zinc-50/50 dark:bg-zinc-900/30 justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-2.5">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5">
+                              <Cpu className="w-4 h-4 text-zinc-400" />
+                              <span>推荐模型系列</span>
+                            </h3>
+                            <span className="text-[9px] text-zinc-450 dark:text-zinc-400 font-mono bg-white/50 dark:bg-zinc-950/20 px-2 py-0.5 rounded-md">
+                              共 {getModelsForItem(selectedTool).length} 个模型
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-hidden">
+                            {getModelsForItem(selectedTool).slice(0, 4).map((model, idx) => (
+                              <div 
+                                key={idx}
+                                className="p-2 rounded-lg bg-white/60 dark:bg-zinc-950/20 hover:bg-white dark:hover:bg-zinc-950/45 transition-all text-left flex flex-col justify-between"
+                              >
+                                <div>
+                                  <div className="font-bold text-xs text-zinc-850 dark:text-zinc-100 truncate">
+                                    {model.name}
+                                  </div>
+                                  <div className="text-[9px] text-zinc-400 dark:text-zinc-500 font-mono mt-0.5">
+                                    发布时间: {model.releaseDate}
+                                  </div>
+                                </div>
+                                <div className="mt-2 flex items-center justify-between">
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold">
+                                    {model.useCase}
+                                  </span>
+                                  <span className="text-[9px] text-emerald-500 dark:text-emerald-400 font-mono font-bold">
+                                    状态良好
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+ 
+                        <div className="text-[9px] text-zinc-400 text-left mt-2.5 border-t border-zinc-200/40 dark:border-zinc-800/40 pt-2 font-mono">
+                          数据来源：各大科技媒体 & 金融公开市场。更新频率：实时。
+                        </div>
+                      </div>
+ 
+                    </div>
+ 
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }

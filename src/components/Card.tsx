@@ -1,14 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Sparkles, MessageSquareText, Cpu, Palette, Image, Github, 
-  Camera, Paintbrush, FileText, Kanban, BookOpen, Dribbble, 
+import {
+  Sparkles, MessageSquareText, Cpu, Palette, Image, Github,
+  Camera, Paintbrush, FileText, Kanban, BookOpen, Dribbble,
   Compass, Component, Blocks, Trash2, Globe, GripVertical,
   Music, Video, Zap, Film, Users, Bot, Mic, Activity,
-  Search, Plus, RefreshCw, Sun, Moon
+  Search, Plus, RefreshCw, Sun, Moon, BookText
 } from 'lucide-react';
 import { WebItem } from '../types';
-import { getModelsForItem } from '../data';
 
 interface CardProps {
   item: WebItem;
@@ -136,6 +135,7 @@ export default function Card({
 
   const pricing = getPricingTag();
   const IconComponent = item.iconName ? iconMap[item.iconName] || Globe : Globe;
+  const isKnowledge = item.cardType === 'knowledge';
 
   // Precision fluid scaling logic based on actual bounding rectangle dimensions
   const minDimension = Math.min(cardWidth, cardHeight);
@@ -240,69 +240,6 @@ export default function Card({
 
   const isHighLatency = currentPing >= 100;
 
-  if (item.id === 'control-center') {
-    const isWide = cardWidth > 1.6 * cardHeight;
-    const padding = 12;
-    const style = isWide
-      ? {
-          height: `${Math.min(cardHeight - padding, (cardWidth - padding) / 4)}px`,
-          aspectRatio: '4/1',
-        }
-      : {
-          width: `${Math.min(cardWidth - padding, cardHeight - padding)}px`,
-          aspectRatio: '1/1',
-        };
-
-    return (
-      <div className="relative w-full h-full flex items-center justify-end select-none p-1.5">
-        <div 
-          className={isWide ? "grid grid-cols-4 gap-1.5" : "grid grid-cols-2 grid-rows-2 gap-1.5"}
-          style={style}
-        >
-          {/* Cell 1: Search */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onSearchClick?.(); }}
-            className="flex items-center justify-center rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-900 hover:scale-[1.03] active:scale-95 transition-all cursor-pointer min-w-0 min-h-0 text-indigo-500"
-            title="搜索工具"
-          >
-            <Search className="w-5 h-5" />
-          </button>
-
-          {/* Cell 2: Add */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onAddClick?.(); }}
-            className="flex items-center justify-center rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:border-emerald-300 dark:hover:border-emerald-900 hover:scale-[1.03] active:scale-95 transition-all cursor-pointer min-w-0 min-h-0 text-emerald-500"
-            title="添加卡片"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
-
-          {/* Cell 3: Reset */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onResetClick?.(); }}
-            className="flex items-center justify-center rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:border-rose-300 dark:hover:border-rose-900 hover:scale-[1.03] active:scale-95 transition-all cursor-pointer min-w-0 min-h-0 text-rose-500"
-            title="重置布局"
-          >
-            <RefreshCw className="w-4.5 h-4.5" />
-          </button>
-
-          {/* Cell 4: Theme Toggle */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onThemeToggle?.(); }}
-            className="flex items-center justify-center rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:border-amber-300 dark:hover:border-amber-900 hover:scale-[1.03] active:scale-95 transition-all cursor-pointer min-w-0 min-h-0"
-            title="切换主题"
-          >
-            {darkMode ? (
-              <Sun className="w-5 h-5 text-amber-500" />
-            ) : (
-              <Moon className="w-5 h-5 text-slate-500" />
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative group h-full select-none" style={{ perspective: '1000px' }}>
       <motion.div
@@ -311,12 +248,12 @@ export default function Card({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         draggable={true}
-        onDragStart={(e) => {
+        onDragStart={(e: any) => {
           if (onDragStart) onDragStart(item.id);
           e.dataTransfer.effectAllowed = 'move';
           e.dataTransfer.setData('text/plain', item.id);
         }}
-        onDragOver={(e) => {
+        onDragOver={(e: any) => {
           if (onDragOver) {
             e.preventDefault();
             onDragOver(item.id);
@@ -392,26 +329,41 @@ export default function Card({
                   className="tracking-tight font-extrabold truncate flex items-center gap-1"
                   style={{ fontSize: `${titleSizePx}px`, lineHeight: 1.1 }}
                 >
-                  <a 
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    draggable={false}
-                    onDragStart={(e) => e.preventDefault()}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                    className="text-zinc-900 dark:text-zinc-100 hover:underline hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer"
-                  >
-                    {item.name}
-                  </a>
+                  {isKnowledge ? (
+                    <span className="text-zinc-900 dark:text-zinc-100">
+                      {item.name}
+                    </span>
+                  ) : (
+                    <a 
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      draggable={false}
+                      onDragStart={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      className="text-zinc-900 dark:text-zinc-100 hover:underline hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer"
+                    >
+                      {item.name}
+                    </a>
+                  )}
                 </h3>
-                {cardHeight > 90 && domain && (
+                {cardHeight > 90 && domain && !isKnowledge && (
                   <span 
                     className="text-zinc-400 dark:text-zinc-500 font-mono tracking-wide truncate block mt-0.5"
                     style={{ fontSize: `${Math.max(7, titleSizePx * 0.65)}px` }}
                   >
                     {domain}
+                  </span>
+                )}
+                {cardHeight > 90 && isKnowledge && (
+                  <span 
+                    className="text-cyan-500 dark:text-cyan-400 font-mono tracking-wide truncate block mt-0.5 flex items-center gap-0.5"
+                    style={{ fontSize: `${Math.max(7, titleSizePx * 0.6)}px` }}
+                  >
+                    <BookText className="w-2.5 h-2.5" />
+                    科普知识
                   </span>
                 )}
               </div>
@@ -455,55 +407,18 @@ export default function Card({
             </div>
           </div>
 
-          {/* Middle Row: Model List */}
-          {showDesc && (
+          {/* Middle Row: Description (knowledge) or empty (link) */}
+          {showDesc && isKnowledge && (
             <div 
               className="flex flex-col gap-1 text-left flex-grow overflow-hidden select-none mt-1.5"
               style={{ minHeight: '30px' }}
             >
-              {(() => {
-                const allModels = getModelsForItem(item);
-                // Calculate how many rows of models can fit dynamically
-                const availableHeight = cardHeight - paddingPx * 2 - (showTags ? 30 : 0) - 45;
-                const maxRows = Math.max(1, Math.floor(availableHeight / 18));
-                const modelsToDisplay = allModels.slice(0, maxRows);
-                const hasMore = allModels.length > maxRows;
-
-                return (
-                  <>
-                    {modelsToDisplay.map((model, idx) => (
-                      <div 
-                        key={idx} 
-                        className="flex items-center justify-between gap-1 text-zinc-500 dark:text-zinc-400 font-mono overflow-hidden truncate whitespace-nowrap"
-                        style={{ fontSize: `${Math.max(8, descSizePx * 0.95)}px`, height: '16px' }}
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0 overflow-hidden truncate">
-                          <span className="text-zinc-400 dark:text-zinc-500 shrink-0 font-medium">
-                            {model.releaseDate}
-                          </span>
-                          <span className="text-zinc-800 dark:text-zinc-200 font-bold truncate">
-                            {model.name}
-                          </span>
-                        </div>
-                        <span 
-                          className="px-1 py-[1px] rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 shrink-0 font-sans font-medium"
-                          style={{ fontSize: `${Math.max(7, descSizePx * 0.8)}px` }}
-                        >
-                          {model.useCase}
-                        </span>
-                      </div>
-                    ))}
-                    {hasMore && (
-                      <div 
-                        className="text-zinc-400 dark:text-zinc-500 font-medium italic select-none"
-                        style={{ fontSize: `${Math.max(7, descSizePx * 0.8)}px` }}
-                      >
-                        ... 还有 {allModels.length - maxRows} 个模型
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+              <p 
+                className="text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-4"
+                style={{ fontSize: `${Math.max(8, descSizePx * 0.9)}px` }}
+              >
+                {item.description}
+              </p>
             </div>
           )}
 
@@ -538,42 +453,57 @@ export default function Card({
             </div>
           )}
 
-          {/* Latency Segment Energy Bar */}
-          <div className="border-t border-zinc-200/40 dark:border-zinc-800/40 pt-1 mt-auto">
-            <div className="flex items-center justify-between gap-1">
-              {/* Colorful High-density Latency Bar */}
-              <div className="flex items-center gap-[1px] flex-grow">
-                {latencySegments.map((seg, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`rounded-[0.5px] transition-all duration-300 ${seg.bgClass} opacity-95`}
-                    style={{
-                      height: `${Math.max(3, cardHeight * 0.03)}px`,
-                      flexGrow: 1
-                    }}
-                    title={seg.title}
-                  />
-                ))}
-              </div>
-
-              {/* Ping metric numerical readouts */}
-              {showLatencyText && (
-                <div 
-                  className={`flex items-center gap-0.5 shrink-0 font-mono font-bold ${
-                    currentPing < 40 
-                      ? 'text-amber-500 dark:text-amber-400' 
-                      : currentPing < 100 
-                        ? 'text-emerald-500 dark:text-emerald-400' 
-                        : 'text-rose-500 dark:text-rose-400'
-                  }`}
-                  style={{ fontSize: `${Math.max(7, titleSizePx * 0.65)}px` }}
-                >
-                  <Activity style={{ width: `${Math.max(8, titleSizePx * 0.7)}px`, height: `${Math.max(8, titleSizePx * 0.7)}px` }} />
-                  <span>{currentPing}ms</span>
+          {/* Latency Segment Energy Bar (only for link cards) */}
+          {!isKnowledge && (
+            <div className="border-t border-zinc-200/40 dark:border-zinc-800/40 pt-1 mt-auto">
+              <div className="flex items-center justify-between gap-1">
+                {/* Colorful High-density Latency Bar */}
+                <div className="flex items-center gap-[1px] flex-grow">
+                  {latencySegments.map((seg, idx) => (
+                    <div 
+                      key={idx} 
+                      className={`rounded-[0.5px] transition-all duration-300 ${seg.bgClass} opacity-95`}
+                      style={{
+                        height: `${Math.max(3, cardHeight * 0.03)}px`,
+                        flexGrow: 1
+                      }}
+                      title={seg.title}
+                    />
+                  ))}
                 </div>
+
+                {/* Ping metric numerical readouts */}
+                {showLatencyText && (
+                  <div 
+                    className={`flex items-center gap-0.5 shrink-0 font-mono font-bold ${
+                      currentPing < 40 
+                        ? 'text-amber-500 dark:text-amber-400' 
+                        : currentPing < 100 
+                          ? 'text-emerald-500 dark:text-emerald-400' 
+                          : 'text-rose-500 dark:text-rose-400'
+                    }`}
+                    style={{ fontSize: `${Math.max(7, titleSizePx * 0.65)}px` }}
+                  >
+                    <Activity style={{ width: `${Math.max(8, titleSizePx * 0.7)}px`, height: `${Math.max(8, titleSizePx * 0.7)}px` }} />
+                    <span>{currentPing}ms</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {isKnowledge && (
+            <div className="border-t border-zinc-200/40 dark:border-zinc-800/40 pt-1 mt-auto flex items-center justify-between">
+              <div className="flex items-center gap-1 text-cyan-500 dark:text-cyan-400" style={{ fontSize: `${Math.max(7, titleSizePx * 0.6)}px` }}>
+                <BookOpen style={{ width: `${Math.max(8, titleSizePx * 0.7)}px`, height: `${Math.max(8, titleSizePx * 0.7)}px` }} />
+                <span className="font-semibold">知识科普</span>
+              </div>
+              {item.tokenPrice && (
+                <span className="text-zinc-400 dark:text-zinc-500 font-mono" style={{ fontSize: `${Math.max(7, titleSizePx * 0.55)}px` }}>
+                  {item.tokenPrice}
+                </span>
               )}
             </div>
-          </div>
+          )}
 
         {/* Custom actions */}
         {item.isCustom && onDelete && (

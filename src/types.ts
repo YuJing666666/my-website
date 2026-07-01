@@ -23,6 +23,13 @@ export interface NewsItem {
   time: string;
 }
 
+// 知识科普卡片的内容结构
+export interface KnowledgeSection {
+  heading: string;
+  body: string;
+  tips?: string[];
+}
+
 export interface WebItem {
   id: string;
   name: string;
@@ -36,11 +43,17 @@ export interface WebItem {
   iconName?: string;  // Lucide icon name if applicable
   logoUrl?: string;   // Optional image URL
   isCustom?: boolean; // To distinguish user-added items
-  popularity?: 'huge' | 'wide' | 'tall' | 'normal' | 'small' | 'micro'; // Sizing: huge (2x2), wide (2x1), tall (1x2), normal (1x1), small (1x1 compact), micro (1x1 ultra-condensed)
-  tokenPrice?: string; // Model input/output cost pricing, e.g. ($0.00014/K $0.00028/K tokens)
+  popularity?: 'huge' | 'wide' | 'tall' | 'normal' | 'small' | 'micro'; // Sizing
+  tokenPrice?: string; // Model input/output cost pricing, or subtitle
   models?: AIModel[];
   stock?: StockInfo;
   news?: NewsItem[];
+  // 服装导航站扩展字段
+  cardType?: 'link' | 'knowledge'; // link=跳转质询, knowledge=知识科普
+  knowledgeContent?: KnowledgeSection[]; // 知识科普内容
+  brandInfo?: string; // 品牌简介（质询类）
+  recommendation?: string; // 推荐理由
+  priceRange?: string; // 价格区间
 }
 
 export interface Category {
@@ -48,3 +61,6 @@ export interface Category {
   name: string;
   icon: string; // Lucide icon name
 }
+
+// ===================== 导航分类 =====================
+export type CategoryType = 'fashion' | 'trend' | 'pattern' | 'sewing' | 'accessory' | 'composition';

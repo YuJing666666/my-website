@@ -54,6 +54,7 @@ export interface WebItem {
   brandInfo?: string; // 品牌简介（质询类）
   recommendation?: string; // 推荐理由
   priceRange?: string; // 价格区间
+  level?: '入门' | '进阶' | '高级'; // 知识难度等级
 }
 
 export interface Category {
@@ -63,4 +64,4 @@ export interface Category {
 }
 
 // ===================== 导航分类 =====================
-export type CategoryType = 'fashion' | 'trend' | 'pattern' | 'sewing' | 'accessory' | 'composition';
+export type CategoryType = 'fashion' | 'trend' | 'pattern' | 'sewing' | 'accessory' | 'composition' | 'software';

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Search, Sun, Moon, Plus, RefreshCw, AlertCircle, History, X,
+  Search, Sun, Moon, Plus, AlertCircle, History, X,
   TrendingUp, Newspaper, ExternalLink, Lightbulb, BookOpen, Tag,
   ShoppingBag, Info
 } from 'lucide-react';
 import { WebItem, CategoryType } from './types';
-import { getFashionWebItems, getTrendWebItems, getPatternWebItems, getSewingWebItems, getAccessoryWebItems, getCompositionWebItems, getInquiryDataForItem } from './data';
+import { getFashionWebItems, getTrendWebItems, getPatternWebItems, getSewingWebItems, getAccessoryWebItems, getCompositionWebItems, getSoftwareWebItems, getInquiryDataForItem } from './data';
 import Card from './components/Card';
 import AddCardModal from './components/AddCardModal';
 import Sidebar from './components/Sidebar';
@@ -25,12 +25,12 @@ function computeTreemap(
 ): { item: WebItem; rect: Rect }[] {
   const getWeight = (pop?: string) => {
     switch (pop) {
-      case 'huge': return 16;
-      case 'wide': return 8;
-      case 'tall': return 8;
+      case 'huge': return 6;
+      case 'wide': return 5;
+      case 'tall': return 5;
       case 'normal': return 4;
-      case 'small': return 2;
-      case 'micro': return 1;
+      case 'small': return 3;
+      case 'micro': return 2.5;
       default: return 4;
     }
   };
@@ -106,25 +106,20 @@ function computeTreemap(
     const aspect_h1 = px_w1_h / px_h1_h;
     const aspect_h2 = px_w2_h / px_h2_h;
 
-    // Penalty score helper: penalize aspect ratios that produce ugly, tall vertical cards.
-    // Prefer square cards (aspect ratio near 1.0). Penalize both vertical strips and horizontal strips.
+    // Penalty: strictly prefer 1:1, 3:4 (0.75), 4:3 (1.33) ratios
+    // Penalize anything outside 0.65~1.5 heavily
     const getPenalty = (aspect: number) => {
       let penalty = 0;
-      // Penalize vertical strips heavily (aspect < 0.85)
-      if (aspect < 0.85) {
-        penalty += Math.pow(0.85 - aspect, 2) * 20000;
+      // Ideal zone: 0.65 ~ 1.5 (covers 3:4=0.75, 1:1=1.0, 4:3=1.33)
+      if (aspect < 0.65) {
+        penalty += Math.pow(0.65 - aspect, 2) * 40000;
       }
-      // Penalize horizontal strips heavily (aspect > 1.6)
-      if (aspect > 1.6) {
-        penalty += Math.pow(aspect - 1.6, 2) * 12000;
+      if (aspect > 1.5) {
+        penalty += Math.pow(aspect - 1.5, 2) * 40000;
       }
-      // Extra penalty for extreme strips
-      if (aspect < 0.5) {
-        penalty += 50000;
-      }
-      if (aspect > 3.0) {
-        penalty += 50000;
-      }
+      // Extra heavy penalty for extreme strips
+      if (aspect < 0.45) penalty += 100000;
+      if (aspect > 2.2) penalty += 100000;
       return penalty;
     };
 
@@ -438,6 +433,7 @@ export default function App() {
     if (activeCategory === 'sewing') return getSewingWebItems();
     if (activeCategory === 'accessory') return getAccessoryWebItems();
     if (activeCategory === 'composition') return getCompositionWebItems();
+    if (activeCategory === 'software') return getSoftwareWebItems();
     return getFashionWebItems();
   })();
 
@@ -474,13 +470,6 @@ export default function App() {
           }, 80);
         }}
         onAddClick={() => setAddModalOpen(true)}
-        onResetClick={() => {
-          if (confirm('确认重置整个导航布局吗？这会清除您的排序和自定义卡片。')) {
-            localStorage.removeItem('custom_web_items');
-            localStorage.removeItem('all_web_items_ordered');
-            window.location.reload();
-          }
-        }}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden px-2.5 sm:px-4 py-4 relative">
@@ -575,21 +564,6 @@ export default function App() {
                     >
                       <Plus className="w-4.5 h-4.5" />
                     </button>
-
-                    {/* Reset Layout Order */}
-                    <button
-                      onClick={() => {
-                        if (confirm('确认重置整个导航布局吗？这会清除您的排序和自定义卡片。')) {
-                          localStorage.removeItem('custom_web_items');
-                          localStorage.removeItem('all_web_items_ordered');
-                          window.location.reload();
-                        }
-                      }}
-                      className="p-1.5 rounded-lg text-zinc-400 dark:text-zinc-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
-                      title="重置默认顺序"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 </div>
 
@@ -680,7 +654,6 @@ export default function App() {
                             }, 80);
                           }}
                           onAddClick={() => setAddModalOpen(true)}
-                          onResetClick={undefined}
                           darkMode={darkMode}
                           onThemeToggle={() => setDarkMode(!darkMode)}
                         />

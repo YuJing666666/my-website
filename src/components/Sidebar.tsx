@@ -1,7 +1,7 @@
 import { motion } from 'motion/react';
 import {
-  Search, Plus, RefreshCw, Sun, Moon,
-  Shirt, TrendingUp, Scissors, PenTool, Zap, LayoutGrid
+  Search, Plus, Sun, Moon,
+  Shirt, TrendingUp, Scissors, PenTool, Zap, LayoutGrid, Monitor
 } from 'lucide-react';
 import { CategoryType } from '../types';
 
@@ -12,7 +12,6 @@ interface SidebarProps {
   onThemeToggle: () => void;
   onSearchClick: () => void;
   onAddClick: () => void;
-  onResetClick: () => void;
 }
 
 const CATEGORIES: { id: CategoryType; label: string; icon: typeof Shirt; color: string }[] = [
@@ -22,6 +21,7 @@ const CATEGORIES: { id: CategoryType; label: string; icon: typeof Shirt; color: 
   { id: 'sewing', label: '缝纫工艺', icon: PenTool, color: 'text-emerald-500' },
   { id: 'accessory', label: '辅料工艺', icon: Zap, color: 'text-amber-500' },
   { id: 'composition', label: '设计构成', icon: LayoutGrid, color: 'text-violet-500' },
+  { id: 'software', label: '设计软件', icon: Monitor, color: 'text-sky-500' },
 ];
 
 const colorMap: Record<string, string> = {
@@ -31,9 +31,10 @@ const colorMap: Record<string, string> = {
   'text-emerald-500': '#10b981',
   'text-amber-500': '#f59e0b',
   'text-violet-500': '#8b5cf6',
+  'text-sky-500': '#0ea5e9',
 };
 
-export default function Sidebar({ activeCategory, onSelect, darkMode, onThemeToggle, onSearchClick, onAddClick, onResetClick }: SidebarProps) {
+export default function Sidebar({ activeCategory, onSelect, darkMode, onThemeToggle, onSearchClick, onAddClick }: SidebarProps) {
   return (
     <aside className="w-[68px] sm:w-[76px] shrink-0 border-r border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-md flex flex-col items-center py-3 z-20 relative overflow-y-auto scrollbar-none">
       {/* Category Buttons */}
@@ -83,15 +84,15 @@ export default function Sidebar({ activeCategory, onSelect, darkMode, onThemeTog
       {/* Divider */}
       <div className="w-8 h-px bg-zinc-200 dark:bg-zinc-800 my-2 shrink-0" />
 
-      {/* Action Buttons: Search / Add / Reset */}
+      {/* Action Buttons: Search / Add */}
       <div className="flex flex-col gap-1.5 shrink-0">
         <button
           onClick={onSearchClick}
           className="flex flex-col items-center justify-center gap-1 w-[56px] sm:w-[64px] py-2.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-all cursor-pointer group"
           title="搜索"
         >
-          <Search className="w-5 h-5 text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-500 transition-colors" />
-          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-indigo-500 transition-colors leading-none">搜索</span>
+          <Search className="w-5 h-5 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" />
+          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors leading-none">搜索</span>
         </button>
 
         <button
@@ -99,17 +100,8 @@ export default function Sidebar({ activeCategory, onSelect, darkMode, onThemeTog
           className="flex flex-col items-center justify-center gap-1 w-[56px] sm:w-[64px] py-2.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-all cursor-pointer group"
           title="添加卡片"
         >
-          <Plus className="w-5 h-5 text-zinc-400 dark:text-zinc-500 group-hover:text-emerald-500 transition-colors" />
-          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-emerald-500 transition-colors leading-none">添加</span>
-        </button>
-
-        <button
-          onClick={onResetClick}
-          className="flex flex-col items-center justify-center gap-1 w-[56px] sm:w-[64px] py-2.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-all cursor-pointer group"
-          title="重置布局"
-        >
-          <RefreshCw className="w-4.5 h-4.5 text-zinc-400 dark:text-zinc-500 group-hover:text-rose-500 transition-colors" />
-          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-rose-500 transition-colors leading-none">重置</span>
+          <Plus className="w-5 h-5 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" />
+          <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors leading-none">添加</span>
         </button>
       </div>
 
@@ -123,11 +115,11 @@ export default function Sidebar({ activeCategory, onSelect, darkMode, onThemeTog
         title={darkMode ? '切换亮色模式' : '切换暗黑模式'}
       >
         {darkMode ? (
-          <Sun className="w-5 h-5 text-amber-500" />
+          <Sun className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
         ) : (
-          <Moon className="w-5 h-5 text-indigo-500" />
+          <Moon className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
         )}
-        <span className={`text-[10px] font-semibold leading-none ${darkMode ? 'text-amber-500' : 'text-indigo-500'}`}>
+        <span className="text-[10px] font-semibold leading-none text-zinc-500 dark:text-zinc-400">
           {darkMode ? '亮色' : '暗黑'}
         </span>
       </button>

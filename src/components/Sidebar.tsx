@@ -36,7 +36,7 @@ const colorMap: Record<string, string> = {
 
 export default function Sidebar({ activeCategory, onSelect, darkMode, onThemeToggle, onSearchClick, onAddClick }: SidebarProps) {
   return (
-    <aside className="w-[68px] sm:w-[76px] shrink-0 border-r border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-md flex flex-col items-center py-3 z-20 relative overflow-y-auto scrollbar-none">
+    <aside className="hidden md:flex w-[68px] sm:w-[76px] shrink-0 border-r border-zinc-200/60 dark:border-zinc-800/60 bg-white/60 dark:bg-zinc-950/60 backdrop-blur-md flex-col items-center py-3 z-20 relative overflow-y-auto scrollbar-none">
       {/* Category Buttons */}
       <nav className="flex flex-col gap-1.5 flex-grow">
         {CATEGORIES.map((cat) => {

@@ -26,6 +26,7 @@ interface CardProps {
   onSearchClick?: () => void;
   onAddClick?: () => void;
   darkMode?: boolean;
+  density?: 'compact' | 'comfortable';
   onThemeToggle?: () => void;
 }
 
@@ -39,7 +40,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 export default function Card({
   item, cardWidth, cardHeight,
   onDelete, onDragStart, onDragOver, onDragEnd, isDragging,
-  onClick, darkMode, onThemeToggle
+  onClick, darkMode, onThemeToggle, density
 }: CardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
@@ -100,7 +101,7 @@ export default function Card({
 
   // Precision fluid scaling logic
   const minDimension = Math.min(cardWidth, cardHeight);
-  const paddingPx = Math.max(5, Math.min(14, minDimension * 0.055));
+  const paddingPx = Math.max(5, Math.min(14, minDimension * 0.055)) * (density === 'compact' ? 0.82 : 1);
   const titleSizePx = Math.max(9, Math.min(18, minDimension * 0.075));
   const descSizePx = Math.max(8, Math.min(11.5, minDimension * 0.048));
   const logoSizePx = Math.max(16, Math.min(36, minDimension * 0.15));

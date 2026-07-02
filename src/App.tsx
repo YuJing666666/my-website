@@ -3,9 +3,22 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, Sun, Moon, Plus, AlertCircle, History, X,
   TrendingUp, Newspaper, ExternalLink, Lightbulb, BookOpen, Tag,
-  ShoppingBag, Info
+  ShoppingBag, Info, Download, Upload, Maximize2, Minimize2,
+  Shirt, Scissors, PenTool, Zap, LayoutGrid, Monitor
 } from 'lucide-react';
 import { WebItem, CategoryType } from './types';
+
+const CATEGORY_ORDER: CategoryType[] = ['fashion', 'trend', 'pattern', 'sewing', 'accessory', 'composition', 'software'];
+
+const MOBILE_CATEGORIES: { id: CategoryType; label: string; icon: typeof Shirt; color: string }[] = [
+  { id: 'fashion', label: '品牌', icon: Shirt, color: 'text-pink-500' },
+  { id: 'trend', label: '趋势', icon: TrendingUp, color: 'text-orange-500' },
+  { id: 'pattern', label: '纸样', icon: Scissors, color: 'text-cyan-500' },
+  { id: 'sewing', label: '缝纫', icon: PenTool, color: 'text-emerald-500' },
+  { id: 'accessory', label: '辅料', icon: Zap, color: 'text-amber-500' },
+  { id: 'composition', label: '构成', icon: LayoutGrid, color: 'text-violet-500' },
+  { id: 'software', label: '软件', icon: Monitor, color: 'text-sky-500' },
+];
 import { getFashionWebItems, getTrendWebItems, getPatternWebItems, getSewingWebItems, getAccessoryWebItems, getCompositionWebItems, getSoftwareWebItems, getInquiryDataForItem } from './data';
 import Card from './components/Card';
 import AddCardModal from './components/AddCardModal';
@@ -196,16 +209,25 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme) return savedTheme === 'dark';
-      // Default to light mode (false) as requested by the user
-      return false;
+      // Default to dark mode
+      return true;
     }
-    return false;
+    return true;
   });
 
+  const [density, setDensity] = useState<'compact' | 'comfortable'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('card_density');
+      if (saved === 'compact' || saved === 'comfortable') return saved;
+    }
+    return 'comfortable';
+  });
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [selectedTool, setSelectedTool] = useState<WebItem | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const activeCategoryRef = useRef(activeCategory);
+  const scrollCooldownRef = useRef(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -285,10 +307,52 @@ export default function App() {
     }
   }, [darkMode]);
 
+  // Persist density preference
+  useEffect(() => {
+    localStorage.setItem('card_density', density);
+  }, [density]);
+
   // Sync activeCategory ref for keyboard listener
   useEffect(() => {
     activeCategoryRef.current = activeCategory;
   }, [activeCategory]);
+
+  // Wheel scroll to switch categories (with cooldown to prevent rapid skipping)
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      // Skip if search drawer is open or modal is open
+      if (isSearchOpen || selectedTool) return;
+      // Skip if scrolling inside an input/textarea
+      const target = e.target as HTMLElement;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+      // Only handle horizontal scroll OR vertical scroll on the main content area
+      // Prevent default to avoid page scroll
+
+      if (scrollCooldownRef.current) return;
+
+      const currentIdx = CATEGORY_ORDER.indexOf(activeCategoryRef.current);
+      let nextIdx = currentIdx;
+
+      // DeltaY > 0 = scroll down = next category; < 0 = scroll up = prev category
+      if (e.deltaY > 30) {
+        nextIdx = Math.min(currentIdx + 1, CATEGORY_ORDER.length - 1);
+      } else if (e.deltaY < -30) {
+        nextIdx = Math.max(currentIdx - 1, 0);
+      }
+
+      if (nextIdx !== currentIdx) {
+        e.preventDefault();
+        setActiveCategory(CATEGORY_ORDER[nextIdx]);
+        setSearchQuery('');
+        // Cooldown 600ms to prevent rapid skipping
+        scrollCooldownRef.current = true;
+        setTimeout(() => { scrollCooldownRef.current = false; }, 600);
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [isSearchOpen, selectedTool]);
 
   // Global keyboard listeners for triggering and closing the search drawer
   useEffect(() => {
@@ -391,6 +455,47 @@ export default function App() {
     setDraggedId(null);
   };
 
+  // Export configuration as JSON file
+  const handleExport = () => {
+    const config = {
+      customItems: JSON.parse(localStorage.getItem('custom_web_items') || '[]'),
+      orderedItems: JSON.parse(localStorage.getItem('all_web_items_ordered') || '[]'),
+      searchHistory: JSON.parse(localStorage.getItem('ai_search_history') || '[]'),
+      density,
+      theme: darkMode ? 'dark' : 'light',
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fashion-nav-config-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Import configuration from JSON file
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const config = JSON.parse(event.target?.result as string);
+        if (config.customItems) localStorage.setItem('custom_web_items', JSON.stringify(config.customItems));
+        if (config.orderedItems) localStorage.setItem('all_web_items_ordered', JSON.stringify(config.orderedItems));
+        if (config.searchHistory) localStorage.setItem('ai_search_history', JSON.stringify(config.searchHistory));
+        if (config.density) setDensity(config.density);
+        if (config.theme) setDarkMode(config.theme === 'dark');
+        window.location.reload();
+      } catch {
+        alert('导入失败：文件格式不正确');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   // Bento Span Classes mapped precisely across 6 structural sizes to give optimal dense arrangement
   const getBentoSpanClass = (popularity?: 'huge' | 'wide' | 'tall' | 'normal' | 'small' | 'micro') => {
     switch (popularity) {
@@ -472,7 +577,7 @@ export default function App() {
         onAddClick={() => setAddModalOpen(true)}
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden px-2.5 sm:px-4 py-4 relative">
+      <div className="flex-1 flex flex-col overflow-hidden px-2.5 sm:px-4 pt-4 pb-14 md:py-4 relative">
       {/* Background aesthetic grid lines */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_0.5px,transparent_0.5px),linear-gradient(to_bottom,#e5e7eb_0.5px,transparent_0.5px)] dark:bg-[linear-gradient(to_right,#1f2937_0.5px,transparent_0.5px),linear-gradient(to_bottom,#1f2937_0.5px,transparent_0.5px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-[0.25] dark:opacity-[0.16]" />
@@ -564,6 +669,40 @@ export default function App() {
                     >
                       <Plus className="w-4.5 h-4.5" />
                     </button>
+
+                    {/* Density Toggle */}
+                    <button
+                      onClick={() => setDensity(density === 'compact' ? 'comfortable' : 'compact')}
+                      className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+                      title={density === 'compact' ? '切换舒适密度' : '切换紧凑密度'}
+                    >
+                      {density === 'compact' ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                    </button>
+
+                    {/* Export Config */}
+                    <button
+                      onClick={handleExport}
+                      className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+                      title="导出配置"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+
+                    {/* Import Config */}
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+                      title="导入配置"
+                    >
+                      <Upload className="w-4 h-4" />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="application/json"
+                      className="hidden"
+                      onChange={handleImport}
+                    />
                   </div>
                 </div>
 
@@ -609,33 +748,41 @@ export default function App() {
         {/* COMPACT DENSE PACKED BENTO WALL */}
         <main className="w-full flex-grow flex-1 min-h-0 relative mb-2" ref={containerRef}>
           {displayItems.length > 0 ? (
-            <div className="absolute inset-0 w-full h-full" id="treemap-bento-grid">
-              <AnimatePresence mode="popLayout">
-                {(() => {
-                  return computeTreemap(displayItems, dimensions.width, dimensions.height).map(({ item, rect }) => {
-                    const cardWidth = (rect.w * dimensions.width) / 100;
-                    const cardHeight = (rect.h * dimensions.height) / 100;
-                    return (
-                      <motion.div
-                        layout
-                        key={item.id}
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                        style={{
-                          position: 'absolute',
-                          left: `${rect.x}%`,
-                          top: `${rect.y}%`,
-                          width: `${rect.w}%`,
-                          height: `${rect.h}%`,
-                          padding: '3px',
-                        }}
-                      >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeCategory}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full"
+                id="treemap-bento-grid"
+              >
+                {computeTreemap(displayItems, dimensions.width, dimensions.height).map(({ item, rect }) => {
+                  const cardWidth = (rect.w * dimensions.width) / 100;
+                  const cardHeight = (rect.h * dimensions.height) / 100;
+                  const gap = density === 'compact' ? 1.5 : 4;
+                  return (
+                    <motion.div
+                      layout
+                      key={item.id}
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      style={{
+                        position: 'absolute',
+                        left: `${rect.x}%`,
+                        top: `${rect.y}%`,
+                        width: `${rect.w}%`,
+                        height: `${rect.h}%`,
+                        padding: `${gap}px`,
+                      }}
+                    >
                         <Card 
                           item={item} 
-                          cardWidth={cardWidth - 6}
-                          cardHeight={cardHeight - 6}
+                          cardWidth={cardWidth - (density === 'compact' ? 3 : 8)}
+                          cardHeight={cardHeight - (density === 'compact' ? 3 : 8)}
                           onDelete={undefined}
                           onDragStart={undefined}
                           onDragOver={undefined}
@@ -656,13 +803,13 @@ export default function App() {
                           onAddClick={() => setAddModalOpen(true)}
                           darkMode={darkMode}
                           onThemeToggle={() => setDarkMode(!darkMode)}
+                          density={density}
                         />
                       </motion.div>
                     );
-                  });
-                })()}
-              </AnimatePresence>
-            </div>
+                })}
+              </motion.div>
+            </AnimatePresence>
           ) : (
             <div className="w-full max-w-md mx-auto py-20 flex flex-col items-center justify-center text-center space-y-4">
               <div className="p-4 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-400">
@@ -891,6 +1038,63 @@ export default function App() {
           );
         })()}
       </AnimatePresence>
+
+      {/* Mobile Bottom Tab Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-t border-zinc-200 dark:border-zinc-800 flex items-center px-1 h-[52px]">
+        <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none flex-grow">
+          {MOBILE_CATEGORIES.map((cat) => {
+            const isActive = activeCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  setActiveCategory(cat.id);
+                  setIsSearchOpen(false);
+                  setSearchQuery('');
+                }}
+                className={`flex flex-col items-center justify-center gap-0.5 px-2.5 py-1 rounded-lg shrink-0 transition-all ${
+                  isActive ? 'bg-zinc-100 dark:bg-zinc-800/80' : ''
+                }`}
+              >
+                <cat.icon className={`w-4 h-4 ${isActive ? cat.color : 'text-zinc-400 dark:text-zinc-500'}`} />
+                <span className={`text-[9px] font-semibold ${isActive ? 'text-zinc-800 dark:text-zinc-100' : 'text-zinc-400 dark:text-zinc-500'}`}>
+                  {cat.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex items-center gap-0.5 shrink-0 pl-1 border-l border-zinc-200 dark:border-zinc-800 ml-1">
+          <button
+            onClick={() => {
+              setIsSearchOpen(true);
+              setTimeout(() => {
+                searchInputRef.current?.focus();
+                setIsFocused(true);
+              }, 80);
+            }}
+            className="p-1.5 rounded-lg text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+            title="搜索"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setAddModalOpen(true)}
+            className="p-1.5 rounded-lg text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+            title="添加"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="p-1.5 rounded-lg text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+            title={darkMode ? '切换亮色' : '切换暗黑'}
+          >
+            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+        </div>
+      </nav>
+
       </div>
     </div>
   );
